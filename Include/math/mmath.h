@@ -1,18 +1,37 @@
+/******************************************************************************
+FileName: 		mmath.h
+Description:   	header file
+Author:   		Round Bridge
+Date: 			2020.1.17
+Modification History:
+					2020.1.17 create file
+Version: 		0.0.1
+******************************************************************************/
+
 
 #ifndef _MMATH_H_
 #define _MMATH_H_
 
 #include "types.h"
 
-namespace RoundBridge
+namespace mmath
 {
-	template <class Type>
-	class sort {
-	public:		
-		//sort(sint32 (*cmp)(Type t1, Type t2));		
-		//~sort(){}
-		sint32 partition(Type *pdata, sint32 left, sint32 right);
-		void quick_sort(Type *pdata, sint32 left, sint32 right);
+	template <class Type_Tools>
+	class Tools{
+	public:
+		Tools(){}
+		virtual ~Tools(){}
+		void swap(Type_Tools *pdata, sint32 i, sint32 j);
+	};
+
+
+	template <class Type_Sort>
+	class Sort : public Tools<Type_Sort>{
+	public:
+		Sort():Tools<Type_Sort>(){}
+		virtual ~Sort(){}
+		sint32 partition(Type_Sort *pdata, sint32 left, sint32 right);
+		void quick_sort(Type_Sort *pdata, sint32 left, sint32 right);
 		/*
 		void adjust_heap(Type *root, int i, int size);		
 		void create_heap(Type *root, int size);		
@@ -25,9 +44,8 @@ namespace RoundBridge
 		void insert_sort(Type *root, int size);		
 		Type *binary_search(Type *root, int size, Type *s);	
 		*/
-	private:		
-		//sint32 (*compare)(Type t1, Type t2);
-	};
+	};		
+	
 
 
 
