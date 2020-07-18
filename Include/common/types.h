@@ -44,6 +44,11 @@ typedef int*				psint;
 typedef int*				psint32;
 typedef long long*		 	psint64;
 typedef void*				pvoid;
+typedef float				sf4;
+typedef double				sf8;
+typedef float*				psf4;
+typedef double*				psf8;
+
 
 typedef volatile unsigned char			uint8v;
 typedef volatile unsigned char*			puint8v;
@@ -62,6 +67,10 @@ typedef volatile int					sint32v;
 typedef volatile int*					psint32v;
 typedef volatile long long				sint64v;
 typedef volatile long long*				psint64v;
+typedef volatile float					sf4v;
+typedef volatile double					sf8v;
+typedef volatile float*					psf4v;
+typedef volatile double*				psf8v;
 
 
 #endif
