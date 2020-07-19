@@ -28,8 +28,11 @@ namespace mmath
 	template <class Type_Sort>
 	class Sort : public Tools<Type_Sort>{
 	public:
-		Sort():Tools<Type_Sort>(){}
+		Sort():Tools<Type_Sort>(){reverse=FALSE;}
+		// if output in the order of bigger to smaller, set flag to TRUE
+		Sort(uint flag):Tools<Type_Sort>(){reverse=flag;}		
 		virtual ~Sort(){}
+		uint is_reverse();
 		sint32 partition(Type_Sort *pdata, sint32 left, sint32 right);
 		void quick_sort(Type_Sort *pdata, sint32 left, sint32 right);
 		/*
@@ -44,6 +47,8 @@ namespace mmath
 		void insert_sort(Type *root, int size);		
 		Type *binary_search(Type *root, int size, Type *s);	
 		*/
+	private:
+		uint reverse;
 	};		
 	
 
