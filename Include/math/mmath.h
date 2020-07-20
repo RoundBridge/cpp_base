@@ -35,6 +35,7 @@ namespace mmath
 		uint is_reverse();
 		sint32 partition(Type_Sort *pdata, sint32 left, sint32 right);
 		void quick_sort(Type_Sort *pdata, sint32 left, sint32 right);
+		void insert_sort(Type_Sort *pdata, sint32 left, sint32 right);	
 		/*
 		void adjust_heap(Type *root, int i, int size);		
 		void create_heap(Type *root, int size);		
@@ -43,8 +44,7 @@ namespace mmath
 		void shell_sort(Type *root, int size);				
 		void merge_sort(Type *root, int l, int r);		
 		void merge(Type *root, int l, int mid, int r);		
-		void bubble_sort(Type *root, int size);		
-		void insert_sort(Type *root, int size);		
+		void bubble_sort(Type *root, int size);				
 		Type *binary_search(Type *root, int size, Type *s);	
 		*/
 	private:
