@@ -73,12 +73,12 @@ namespace mmath
 	}
 
 
+
 	template <class Type_Sort>
 	void Sort<Type_Sort>::insert_sort(Type_Sort *pdata, sint32 left, sint32 right){
 		if (left >= right) {
 			return;	
 		}
-		sint32 size = right - left + 1;
 		sint32 i, j, index;
 		uint reverse = is_reverse();
 
@@ -99,6 +99,43 @@ namespace mmath
 				}
 			}
 		}
+		return;
+	}
+
+
+
+	template <class Type_Sort>
+	void Sort<Type_Sort>::shell_sort(Type_Sort *pdata, sint32 left, sint32 right){
+		if (left >= right) {
+			return;	
+		}
+		sint32 i, j, step, index, k;
+		uint reverse = is_reverse();
+
+		step = (right - left + 1) / 2;
+		while(step >= 1){
+			for(k = 0; k < step; k++){
+				/* this inner two loops is a insert sort */
+				for(j = k +  step; j <= right; j += step){
+					index = j;
+					for(i = j - step; i >= left; i -= step){
+						if(reverse){
+							if(pdata[index] > pdata[i]){
+								this->swap(pdata, i, index);
+								index = i;
+							}
+						}else{
+							if(pdata[index] < pdata[i]){
+								this->swap(pdata, i, index);
+								index = i;
+							}
+						}					
+					}			
+				}			
+			}
+			step /= 2;
+		}
+
 		return;
 	}
 
