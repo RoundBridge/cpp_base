@@ -25,10 +25,15 @@ int main()
 	sf8Sort.insert_sort(a2,0,2);
 	sf8Sort.insert_sort(a3,0,1);
 
-#elif 1
+#elif 0
 	sf8Sort.shell_sort(a1,0,10);
 	sf8Sort.shell_sort(a2,0,2);
 	sf8Sort.shell_sort(a3,0,1);
+
+#elif 1
+	sf8Sort.bubble_sort(a1,0,10);
+	sf8Sort.bubble_sort(a2,0,2);
+	sf8Sort.bubble_sort(a3,0,1);
 
 #endif
 

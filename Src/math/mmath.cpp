@@ -12,7 +12,6 @@ Version: 		0.0.1
 #include "types.h"
 #include "mmath.h"
 
-
 namespace mmath
 {
 	template <class Type_Tools>
@@ -139,4 +138,27 @@ namespace mmath
 		return;
 	}
 
+	template <class Type_Sort>
+	void Sort<Type_Sort>::bubble_sort(Type_Sort *pdata, sint32 left, sint32 right){
+		if (left >= right) {
+			return;
+		}
+		sint32 i, right_edge;
+		uint reverse = is_reverse();
+
+		for(right_edge = right; right_edge > left; right_edge--){
+			for(i = left; i < right_edge; i++){
+				if(reverse){
+					if(pdata[i] < pdata[i+1]){
+						this->swap(pdata, i, i+1);
+					}
+				}else{
+					if(pdata[i] > pdata[i+1]){
+						this->swap(pdata, i, i+1);
+					}
+				}
+			}
+		}
+		return;
+	}
 }
