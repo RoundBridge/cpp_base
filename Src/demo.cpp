@@ -10,30 +10,35 @@ using mmath::Sort;
 	
 int main()
 {
-	sf8 a1[11] = {0.1, 8.1, -4.7, 1, 6.9, 1, 9.2, 0, 3.3, -77, 10.01};
+	sf8 a1[20] = {0.1, 8.1, -4.7, 1, 6.9, 1, 9.2, 0, 3.3, -77, 10.01, -0.1, 2, 65, -4.7, 200, -7, 4, -6.9, -6.9};
 	sf8 a2[3] = {0.1, 8.1, -4.7};
 	sf8 a3[2] = {0.1, -4.7};
 	Sort<sf8> sf8Sort(TRUE);
 
 #if 0
-	sf8Sort.quick_sort(a1,0,10);
+	sf8Sort.quick_sort(a1,0,19);
 	sf8Sort.quick_sort(a2,0,2);
 	sf8Sort.quick_sort(a3,0,1);
 
 #elif 0
-	sf8Sort.insert_sort(a1,0,10);
+	sf8Sort.insert_sort(a1,0,19);
 	sf8Sort.insert_sort(a2,0,2);
 	sf8Sort.insert_sort(a3,0,1);
 
 #elif 0
-	sf8Sort.shell_sort(a1,0,10);
+	sf8Sort.shell_sort(a1,0,19);
 	sf8Sort.shell_sort(a2,0,2);
 	sf8Sort.shell_sort(a3,0,1);
 
-#elif 1
-	sf8Sort.bubble_sort(a1,0,10);
+#elif 0
+	sf8Sort.bubble_sort(a1,0,19);
 	sf8Sort.bubble_sort(a2,0,2);
 	sf8Sort.bubble_sort(a3,0,1);
+
+#elif 1
+	sf8Sort.heap_sort(a1,0,19);
+	sf8Sort.heap_sort(a2,0,2);
+	sf8Sort.heap_sort(a3,0,1);
 
 #endif
 

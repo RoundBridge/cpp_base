@@ -161,4 +161,89 @@ namespace mmath
 		}
 		return;
 	}
+
+	/*
+		基于父节点和左右孩子创建包含三个元素的大顶堆
+	*/
+	template <class Type_Sort>
+	void Sort<Type_Sort>::create_heap(Type_Sort *pdata, sint32 index, sint32 size){
+		sint32 largest = index;
+		sint32 smallest= index;
+		sint32 temp    = index;	
+		sint32 right, left;
+		uint reverse = is_reverse();
+
+		right = index * 2 + 2;  // index 结点的右孩子(如果有)
+		left  = index * 2 + 1;  // index 结点的左孩子
+
+		// find the largest element in this triple set
+		if((right < size) && (pdata[largest] < pdata[right])){
+			largest = right;
+		}
+		if((left < size) && (pdata[largest] < pdata[left])){
+			largest = left;
+		}
+
+		// find the smallest element in this triple set
+		if((right < size) && (pdata[smallest] > pdata[right])){
+			smallest = right;
+		}
+		if((left < size) && (pdata[smallest] > pdata[left])){
+			smallest = left;
+		}
+
+		if(reverse){
+			temp = smallest;
+		}else{
+			temp = largest;
+		}
+		
+		if(temp != index){
+			this->swap(pdata, temp, index);
+			//由于改变了位置，所以会影响到下面已经创建
+			//好的大顶堆，因此需递归调整下面的堆
+			create_heap(pdata, temp, size);
+		}
+			
+		return;
+		
+	}
+
+	template <class Type_Sort>
+	void Sort<Type_Sort>::heap_sort(Type_Sort *pdata, sint32 left, sint32 right){
+		if (left >= right) {
+			return;
+		}
+		//uint reverse = is_reverse();
+		sint32 size = right - left + 1;
+		//根节点索引为0，则最后一个非叶子结点的索引为size/2-1
+		sint32 i;
+
+		//创建整棵树的大顶堆
+		for(i = size/2-1; i >= 0; i--){
+			create_heap(pdata, i, size);
+		}
+
+		// 交换堆顶和当前末尾的节点，重置大顶堆
+		for(; size > 1;){
+			this->swap(pdata, 0, size-1);
+			size--;
+			create_heap(pdata, 0, size);
+		}
+		return;		
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
 }
