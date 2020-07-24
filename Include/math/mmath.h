@@ -45,8 +45,7 @@ namespace mmath
 		*/
 		
 	private:
-		uint reverse;
-		Type_Sort backup[50];
+		uint reverse;		
 		uint is_reverse();
 		sint32 partition(Type_Sort *pdata, sint32 left, sint32 right);
 		void create_heap(Type_Sort *pdata, sint32 index, sint32 size);

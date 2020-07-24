@@ -239,30 +239,32 @@ namespace mmath
 
 	template <class Type_Sort>
 	void Sort<Type_Sort>::merge(Type_Sort *pdata, sint32 left, sint32 mid, sint32 right){
-		Type_Sort *temp = &backup[0];
+		Type_Sort *backup = new Type_Sort[right - left + 1];
 		uint reverse = is_reverse();
 		sint32 i, j, index;
 
 		for(i=left, j=mid+1, index=0; i<=mid && j<=right; ){
 			if(reverse){
-				temp[index++] = pdata[i]<pdata[j]?pdata[j++]:pdata[i++];
+				backup[index++] = pdata[i]<pdata[j]?pdata[j++]:pdata[i++];
 			}else{
-				temp[index++] = pdata[i]>pdata[j]?pdata[j++]:pdata[i++];
+				backup[index++] = pdata[i]>pdata[j]?pdata[j++]:pdata[i++];
 			}					
 		}
 
 		//下面两个while 循环每次只可能运行一个
 		while(i<=mid){
-			temp[index++] = pdata[i++];
+			backup[index++] = pdata[i++];
 		}
 		while(j<=right){
-			temp[index++] = pdata[j++];
+			backup[index++] = pdata[j++];
 		}
 
 		for(i=0; i<=right-left; i++){
-			pdata[left+i] = temp[i];
+			pdata[left+i] = backup[i];
 		}
-
+		
+		delete [] backup;
+		
 		return;
 	}
 
