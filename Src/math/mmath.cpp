@@ -11,6 +11,9 @@ Version: 		0.0.1
 
 #include "types.h"
 #include "mmath.h"
+#include <iostream>
+using std::cout;
+using std::endl;
 
 namespace mmath
 {
@@ -214,7 +217,7 @@ namespace mmath
 		if (left >= right) {
 			return;
 		}
-		//uint reverse = is_reverse();
+		
 		sint32 size = right - left + 1;
 		//根节点索引为0，则最后一个非叶子结点的索引为size/2-1
 		sint32 i;
@@ -234,9 +237,76 @@ namespace mmath
 	}
 
 
+	template <class Type_Sort>
+	void Sort<Type_Sort>::merge(Type_Sort *pdata, sint32 left, sint32 mid, sint32 right){
+		Type_Sort *temp = &backup[0];
+		uint reverse = is_reverse();
+		sint32 i, j, index;
+
+		for(i=left, j=mid+1, index=0; i<=mid && j<=right; ){
+			if(reverse){
+				temp[index++] = pdata[i]<pdata[j]?pdata[j++]:pdata[i++];
+			}else{
+				temp[index++] = pdata[i]>pdata[j]?pdata[j++]:pdata[i++];
+			}					
+		}
+
+		//下面两个while 循环每次只可能运行一个
+		while(i<=mid){
+			temp[index++] = pdata[i++];
+		}
+		while(j<=right){
+			temp[index++] = pdata[j++];
+		}
+
+		for(i=0; i<=right-left; i++){
+			pdata[left+i] = temp[i];
+		}
+
+		return;
+	}
+
+	template <class Type_Sort>
+	void Sort<Type_Sort>::merge_sort(Type_Sort *pdata, sint32 left, sint32 right){
+		if (right - left < 1 || left > right) {
+			return;
+		}
+
+		sint32 mid = left + (right - left)/2;
+
+		merge_sort(pdata, left, mid);
+		merge_sort(pdata, mid+1, right);
+		merge(pdata, left, mid, right);
+
+		return;
+	}
 
 
+	template <class Type_Sort>
+	uint32 Sort<Type_Sort>::test(Type_Sort *pdata, sint32 left, sint32 right){
+		uint reverse = is_reverse();
+		sint32 i;
+		uint32 ret = TRUE;
+		
+		for(i=left; i<right; i++){
+			if(reverse){
+				if(pdata[i]<pdata[i+1]){
+					cout<<"ERROR! REVERSE SORT FAILED! No."<<i<<": "<<pdata[i]<<",\tNo."<<i+1<<": "<<pdata[i+1]<<endl;
+					ret = FALSE;
+					break;
+				}
 
+			}else{
+				if(pdata[i]>pdata[i+1]){
+					cout<<"ERROR! SORT FAILED! No."<<i<<": "<<pdata[i]<<",\tNo."<<i+1<<": "<<pdata[i+1]<<endl;
+					ret = FALSE;
+					break;
+				}
+			}
+
+		}
+		return ret;
+	}
 
 
 
