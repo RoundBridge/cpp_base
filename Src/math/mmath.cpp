@@ -293,14 +293,14 @@ namespace mmath
 		for(i=left; i<right; i++){
 			if(reverse){
 				if(pdata[i]<pdata[i+1]){
-					cout<<"ERROR! REVERSE SORT FAILED! No."<<i<<": "<<pdata[i]<<",\tNo."<<i+1<<": "<<pdata[i+1]<<endl;
+					cout<<"[class Sort] ERROR! REVERSE SORT FAILED! No."<<i<<": "<<pdata[i]<<",\tNo."<<i+1<<": "<<pdata[i+1]<<endl;
 					ret = FALSE;
 					break;
 				}
 
 			}else{
 				if(pdata[i]>pdata[i+1]){
-					cout<<"ERROR! SORT FAILED! No."<<i<<": "<<pdata[i]<<",\tNo."<<i+1<<": "<<pdata[i+1]<<endl;
+					cout<<"[class Sort] ERROR! SORT FAILED! No."<<i<<": "<<pdata[i]<<",\tNo."<<i+1<<": "<<pdata[i+1]<<endl;
 					ret = FALSE;
 					break;
 				}
