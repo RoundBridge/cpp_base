@@ -31,7 +31,8 @@ namespace mmath
 		Sort():Tools<Type_Sort>(){reverse=FALSE;}
 		// if output in the order of bigger to smaller, set flag to TRUE
 		Sort(uint flag):Tools<Type_Sort>(){reverse=flag;}		
-		virtual ~Sort(){}		
+		virtual ~Sort(){}
+		void select_sort(Type_Sort *pdata, sint32 left, sint32 right);
 		void quick_sort(Type_Sort *pdata, sint32 left, sint32 right);
 		void insert_sort(Type_Sort *pdata, sint32 left, sint32 right);
 		void shell_sort(Type_Sort *pdata, sint32 left, sint32 right);
@@ -40,7 +41,6 @@ namespace mmath
 		void merge_sort(Type_Sort *pdata, sint32 left, sint32 right);		
 		uint32 test(Type_Sort *pdata, sint32 left, sint32 right);
 		/*				
-		void select_sort(Type *root, int size);
 		Type *binary_search(Type *root, int size, Type *s);	
 		*/
 		

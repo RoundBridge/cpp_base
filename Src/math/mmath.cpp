@@ -217,21 +217,21 @@ namespace mmath
 		if (left >= right) {
 			return;
 		}
-		
-		sint32 size = right - left + 1;
-		//根节点索引为0，则最后一个非叶子结点的索引为size/2-1
 		sint32 i;
+		Type_Sort *pdata_temp = pdata + left;
+		sint32 size = right - left + 1;
+		//根节点索引为0，则最后一个非叶子结点的索引为size/2-1		
 
 		//创建整棵树的大顶堆
 		for(i = size/2-1; i >= 0; i--){
-			create_heap(pdata, i, size);
+			create_heap(pdata_temp, i, size);
 		}
 
 		// 交换堆顶和当前末尾的节点，重置大顶堆
 		for(; size > 1;){
-			this->swap(pdata, 0, size-1);
+			this->swap(pdata_temp, 0, size-1);  //支持子数组排序
 			size--;
-			create_heap(pdata, 0, size);
+			create_heap(pdata_temp, 0, size);
 		}
 		return;		
 	}
@@ -285,6 +285,33 @@ namespace mmath
 
 
 	template <class Type_Sort>
+	void Sort<Type_Sort>::select_sort(Type_Sort *pdata, sint32 left, sint32 right){
+		if (left >= right) {
+			return;
+		}
+		uint reverse = is_reverse();
+		sint32 i, j, temp;
+		
+		for(j = left; j <= right; j++){
+			temp = j; 
+			for(i = temp + 1; i <= right; i++){
+				if(reverse){
+					if(pdata[temp] < pdata[i]){
+						temp = i;
+					}
+				}else{
+					if(pdata[temp] > pdata[i]){
+						temp = i;
+					}
+				}
+			}
+			this->swap(pdata, temp, j);
+		}
+		return;
+	}
+	
+
+	template <class Type_Sort>
 	uint32 Sort<Type_Sort>::test(Type_Sort *pdata, sint32 left, sint32 right){
 		uint reverse = is_reverse();
 		sint32 i;
@@ -297,7 +324,6 @@ namespace mmath
 					ret = FALSE;
 					break;
 				}
-
 			}else{
 				if(pdata[i]>pdata[i+1]){
 					cout<<"[class Sort] ERROR! SORT FAILED! No."<<i<<": "<<pdata[i]<<",\tNo."<<i+1<<": "<<pdata[i+1]<<endl;

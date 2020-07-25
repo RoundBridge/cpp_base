@@ -41,7 +41,7 @@ int main()
 		}else{
 			cout<<"Sort of array "<<iter->first<<" FAILED!"<<endl;
 			for(sint32 i=0; i<(iter->second).second; i++){
-				cout<<"  No. "<<i<<": "<<(iter->second).first[i]<<endl;
+				cout<<"["<<i<<"]: "<<(iter->second).first[i]<<endl;
 			}
 			break;  //Ò»µ©³ö´í£¬Á¢¼´Í£Ö¹
 		}
