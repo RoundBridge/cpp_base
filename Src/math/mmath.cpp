@@ -7,14 +7,19 @@ Modification History:
 					2020.1.17 create file
 Version: 		0.0.1
 ******************************************************************************/
+#ifndef _MMATH_CPP_
+#define _MMATH_CPP_
 
 
+#include <iostream>
+#include <deque>
 #include "types.h"
 #include "mmath.h"
-#include <iostream>
+
 using std::cout;
 using std::endl;
-
+using std::deque;
+	
 namespace mmath
 {
 	template <class Type_Tools>
@@ -26,6 +31,63 @@ namespace mmath
 	}
 
 
+	template <class Type_Btree>
+	Bnode<Type_Btree>* Btree<Type_Btree>::insert_node(Bnode<Type_Btree> *new_node){
+		deque<Bnode<Type_Btree> *> next_node;
+		Bnode<Type_Btree> *node = NULL;
+
+		if(NULL != new_node){
+			new_node->set_lchild((Bnode<Type_Btree>*)NULL);
+			new_node->set_rchild((Bnode<Type_Btree>*)NULL);
+			new_node->set_parent((Bnode<Type_Btree>*)NULL);
+		}else{
+			cout<<"[class Btree] ERROR: NULL pointer input!"<<endl;
+			return NULL;
+		}
+			
+		if(NULL == this->get_root()){
+			this->set_root(new_node);
+			cout<<"[class Btree] Create a new bitree, insert the new node as the root node!"<<endl;
+			return this->get_root();
+		}else{
+			node = this->get_root();
+			while(NULL != node){
+				if(NULL == node->get_lchild()){
+					node->set_lchild(new_node);
+					new_node->set_parent(node);
+					return this->get_root();
+				}else if(NULL == node->get_rchild()){
+					node->set_rchild(new_node);
+					new_node->set_parent(node);
+					return this->get_root();
+				}else{
+					next_node.push_back(node->get_lchild());
+					next_node.push_back(node->get_rchild());
+					node = next_node.front();  //接下来判断队列中第一个元素的左右子树情况
+					next_node.pop_front();  // 删除第一个元素
+				}					
+			}
+		}
+	}
+	
+
+	template <class Type_Btree>
+	void Btree<Type_Btree>::traverse(Bnode<Type_Btree> *root, uint32 order){
+		if(NULL == root){
+			//cout<<"[class Btree] NO TREE TO TRAVERSE!"<<endl;
+			return;
+		}else{
+			// 遍历顺序:前序0，中序1，后序2
+			if(0 == order){
+				cout<<root->get_data()<<" ";
+				traverse(root->get_lchild(), order);
+				traverse(root->get_rchild(), order);
+			}
+			return;
+		}
+	}
+
+	
 	template <class Type_Sort>
 	uint Sort<Type_Sort>::is_reverse(){
 		return (reverse != FALSE);
@@ -309,7 +371,26 @@ namespace mmath
 		}
 		return;
 	}
-	
+
+
+	template <class Type_Sort>
+	void Sort<Type_Sort>::bitree_sort(Type_Sort *pdata, sint32 left, sint32 right){
+		Type_Sort *pdata_temp = pdata + left;  // 支持子数组
+		Btree<Type_Sort> btree;
+		Bnode<Type_Sort> *node = new Bnode<Type_Sort>[right - left + 1];
+		sint32 i, right_side = right - left;
+
+		for(i=0; i<=right_side; i++){
+			node[i].set_data(pdata_temp[i]);
+			btree.insert_node(&node[i]);
+		}
+		btree.traverse(btree.get_root(), 0);
+
+		delete [] node;
+		
+		return;		
+	}
+
 
 	template <class Type_Sort>
 	uint32 Sort<Type_Sort>::test(Type_Sort *pdata, sint32 left, sint32 right){
@@ -345,3 +426,5 @@ namespace mmath
 
 	
 }
+
+#endif
