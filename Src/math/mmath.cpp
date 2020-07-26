@@ -218,7 +218,7 @@ namespace mmath
 			return;
 		}
 		sint32 i;
-		Type_Sort *pdata_temp = pdata + left;
+		Type_Sort *pdata_temp = pdata + left;  //支持子数组排序
 		sint32 size = right - left + 1;
 		//根节点索引为0，则最后一个非叶子结点的索引为size/2-1		
 

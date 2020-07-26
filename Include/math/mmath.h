@@ -24,12 +24,19 @@ namespace mmath
 		void swap(Type_Tools *pdata, sint32 i, sint32 j);
 	};
 
-
+	
+	/*
+		class of sort, usage:
+		1. Instantiate an object, i.e. Sort<T> sf8Sort, if you want to sort in a reverse order, then Sort<T> sf8Sort(TRUE).
+		2. Pass the array to the sort method with the bounds of the array, sf8Sort.sort_method(array, left_ele_index, right_ele_index),
+		sort_method stands for select_sort, quick_sort, insert_sort, shell_sort, bubble_sort, heap_sort, merge_sort.
+		3. Support child array sort.
+		4. To validate the result, use sf8Sort.test(array, left_ele_index, right_ele_index), TRUE for OK, FALSE the otherwise.
+	*/
 	template <class Type_Sort>
 	class Sort : public Tools<Type_Sort>{
 	public:
 		Sort():Tools<Type_Sort>(){reverse=FALSE;}
-		// if output in the order of bigger to smaller, set flag to TRUE
 		Sort(uint flag):Tools<Type_Sort>(){reverse=flag;}		
 		virtual ~Sort(){}
 		void select_sort(Type_Sort *pdata, sint32 left, sint32 right);
