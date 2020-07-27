@@ -13,13 +13,15 @@ Version: 		0.0.1
 
 #include <iostream>
 #include <deque>
+#include <vector>
 #include "types.h"
 #include "mmath.h"
 
 using std::cout;
 using std::endl;
 using std::deque;
-	
+using std::vector;
+
 namespace mmath
 {
 	template <class Type_Tools>
@@ -69,7 +71,51 @@ namespace mmath
 			}
 		}
 	}
-	
+
+
+	template <class Type_Bstree>
+	Bnode<Type_Bstree>* BStree<Type_Bstree>::adjust_bstree(uint32 flag, Bnode<Type_Bstree> *root, Bnode<Type_Bstree> *parent_of_root, Bnode<Type_Bstree> *new_node){
+		if(NULL == root){  // 当前位置是空的，可以插入
+			new_node->set_parent(parent_of_root);
+			if(0 == flag){parent_of_root->set_lchild(new_node);}
+			else{parent_of_root->set_rchild(new_node);}
+			return new_node;
+		}else{
+			if(new_node->get_data() <= root->get_data()){
+				adjust_bstree(0, root->get_lchild(), root, new_node);
+			}else{
+				adjust_bstree(1, root->get_rchild(), root, new_node);
+			}
+			return new_node;
+		}		
+	}
+
+
+	template <class Type_Bstree>
+	Bnode<Type_Bstree>* BStree<Type_Bstree>::insert_node(Bnode<Type_Bstree> *new_node){
+		if(NULL != new_node){
+			new_node->set_lchild((Bnode<Type_Bstree>*)NULL);
+			new_node->set_rchild((Bnode<Type_Bstree>*)NULL);
+			new_node->set_parent((Bnode<Type_Bstree>*)NULL);
+		}else{
+			cout<<"[class Bstree] ERROR: NULL pointer input!"<<endl;
+			return NULL;
+		}
+
+		if(NULL == this->get_root()){
+			this->set_root(new_node);
+			cout<<"[class Bstree] Create a new bstree, insert the new node as the root node!"<<endl;
+			return this->get_root();
+		}else{
+			if(new_node->get_data() <= this->get_root()->get_data()){
+				adjust_bstree(0, this->get_root()->get_lchild(), this->get_root(), new_node);
+			}else{
+				adjust_bstree(1, this->get_root()->get_rchild(), this->get_root(), new_node);
+			}
+			return this->get_root();
+		}
+	}
+
 
 	template <class Type_Btree>
 	void Btree<Type_Btree>::traverse(Bnode<Type_Btree> *root, uint32 order){
@@ -82,6 +128,14 @@ namespace mmath
 				cout<<root->get_data()<<" ";
 				traverse(root->get_lchild(), order);
 				traverse(root->get_rchild(), order);
+			}else if(1 == order){
+				traverse(root->get_lchild(), order);
+				cout<<root->get_data()<<" ";
+				traverse(root->get_rchild(), order);
+			}else{
+				traverse(root->get_lchild(), order);
+				traverse(root->get_rchild(), order);
+				cout<<root->get_data()<<" ";
 			}
 			return;
 		}
@@ -374,17 +428,43 @@ namespace mmath
 
 
 	template <class Type_Sort>
+	void Sort<Type_Sort>::get_data_from_bstree(Bnode<Type_Sort> *root, vector<Type_Sort> &sorted){
+		//if(NULL == root || NULL == sorted){} //不能判断引用是否为空
+		if(NULL == root){}
+		else{
+			get_data_from_bstree(root->get_lchild(), sorted);
+			sorted.push_back(root->get_data());
+			get_data_from_bstree(root->get_rchild(), sorted);
+		}
+		return;
+	}
+
+
+	template <class Type_Sort>
 	void Sort<Type_Sort>::bitree_sort(Type_Sort *pdata, sint32 left, sint32 right){
+		if (left >= right) {
+			return;
+		}
+
 		Type_Sort *pdata_temp = pdata + left;  // 支持子数组
-		Btree<Type_Sort> btree;
+		BStree<Type_Sort> bstree;
 		Bnode<Type_Sort> *node = new Bnode<Type_Sort>[right - left + 1];
+		vector<Type_Sort> sorted;
 		sint32 i, right_side = right - left;
+		uint reverse = is_reverse();
 
 		for(i=0; i<=right_side; i++){
 			node[i].set_data(pdata_temp[i]);
-			btree.insert_node(&node[i]);
+			bstree.insert_node(&node[i]);
 		}
-		btree.traverse(btree.get_root(), 0);
+		get_data_from_bstree(bstree.get_root(), sorted);
+		for(i=0; i<=right_side; i++){
+			if(reverse){
+				pdata_temp[i] = sorted.at(right_side-i);
+			}else{
+				pdata_temp[i] = sorted.at(i);
+			}
+		}
 
 		delete [] node;
 		
@@ -401,13 +481,13 @@ namespace mmath
 		for(i=left; i<right; i++){
 			if(reverse){
 				if(pdata[i]<pdata[i+1]){
-					cout<<"[class Sort] ERROR! REVERSE SORT FAILED! No."<<i<<": "<<pdata[i]<<",\tNo."<<i+1<<": "<<pdata[i+1]<<endl;
+					cout<<"[class Sort] ERROR! REVERSE SORT FAILED! ["<<i<<"]: "<<pdata[i]<<", ["<<i+1<<"]: "<<pdata[i+1]<<endl;
 					ret = FALSE;
 					break;
 				}
 			}else{
 				if(pdata[i]>pdata[i+1]){
-					cout<<"[class Sort] ERROR! SORT FAILED! No."<<i<<": "<<pdata[i]<<",\tNo."<<i+1<<": "<<pdata[i+1]<<endl;
+					cout<<"[class Sort] ERROR! SORT FAILED! ["<<i<<"]: "<<pdata[i]<<", ["<<i+1<<"]: "<<pdata[i+1]<<endl;
 					ret = FALSE;
 					break;
 				}

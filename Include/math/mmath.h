@@ -13,6 +13,9 @@ Version: 		0.0.1
 #define _MMATH_H_
 
 #include "types.h"
+#include <vector>
+
+using std::vector;
 
 namespace mmath
 {
@@ -57,10 +60,21 @@ namespace mmath
 			void set_root(Bnode<Type_Btree> *p){root = p;}
 			Bnode<Type_Btree> *get_root(){return root;}
 			Bnode<Type_Btree> *insert_node(Bnode<Type_Btree> *new_node);
-			void traverse(Bnode<Type_Btree> *root, uint32 order);
+			void traverse(Bnode<Type_Btree> *root, uint32 order); // 遍历顺序:前序0，中序1，后序2
 			
-		private:
+		protected:
 			Bnode<Type_Btree> *root;			
+	};
+
+
+	template <class Type_Bstree>
+	class BStree: public Btree<Type_Bstree>{
+	public:
+		BStree():Btree<Type_Bstree>(){this->root = NULL;}
+		BStree(Bnode<Type_Bstree> *p):Btree<Type_Bstree>(){this->root = p;}
+		virtual ~BStree(){}
+		Bnode<Type_Bstree> *insert_node(Bnode<Type_Bstree> *new_node);
+		Bnode<Type_Bstree> *adjust_bstree(uint32 flag, Bnode<Type_Bstree> *root, Bnode<Type_Bstree> *parent_of_root, Bnode<Type_Bstree> *new_node);
 	};
 
 	
@@ -87,9 +101,6 @@ namespace mmath
 		void merge_sort(Type_Sort *pdata, sint32 left, sint32 right);
 		void bitree_sort(Type_Sort *pdata, sint32 left, sint32 right);
 		uint32 test(Type_Sort *pdata, sint32 left, sint32 right);
-		/*				
-		Type *binary_search(Type *root, int size, Type *s);	
-		*/
 		
 	private:
 		uint reverse;		
@@ -97,6 +108,7 @@ namespace mmath
 		sint32 partition(Type_Sort *pdata, sint32 left, sint32 right);
 		void create_heap(Type_Sort *pdata, sint32 index, sint32 size);
 		void merge(Type_Sort *pdata, sint32 left, sint32 mid, sint32 right);
+		void get_data_from_bstree(Bnode<Type_Sort> *root, vector<Type_Sort> &sorted);
 	};		
 	
 
