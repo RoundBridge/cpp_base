@@ -61,6 +61,7 @@ namespace mmath
 			Bnode<Type_Btree> *get_root(){return root;}
 			Bnode<Type_Btree> *insert_node(Bnode<Type_Btree> *new_node);
 			void traverse(Bnode<Type_Btree> *root, uint32 order); // 遍历顺序:前序0，中序1，后序2
+			Bnode<Type_Btree> *find_node(Bnode<Type_Btree> *node);
 			
 		protected:
 			Bnode<Type_Btree> *root;			
@@ -73,8 +74,10 @@ namespace mmath
 		BStree():Btree<Type_Bstree>(){this->root = NULL;}
 		BStree(Bnode<Type_Bstree> *p):Btree<Type_Bstree>(){this->root = p;}
 		virtual ~BStree(){}
+		void adjust_bstree(Bnode<Type_Bstree> *node);
+		void delete_node(Bnode<Type_Bstree> *node);
 		Bnode<Type_Bstree> *insert_node(Bnode<Type_Bstree> *new_node);
-		Bnode<Type_Bstree> *adjust_bstree(uint32 flag, Bnode<Type_Bstree> *root, Bnode<Type_Bstree> *parent_of_root, Bnode<Type_Bstree> *new_node);
+		Bnode<Type_Bstree> *insert_recursive(uint32 flag, Bnode<Type_Bstree> *root, Bnode<Type_Bstree> *parent_of_root, Bnode<Type_Bstree> *new_node);
 	};
 
 	
