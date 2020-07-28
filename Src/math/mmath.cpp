@@ -35,6 +35,27 @@ namespace mmath
 		return;
 	}
 
+
+	template <class Type_Bnode>
+	uint Bnode<Type_Bnode>::is_lchild(){
+		if(!this->is_root()){
+			return (this == this->get_parent()->get_lchild());
+		}else{
+			return FALSE;
+		}
+	}
+
+
+	template <class Type_Bnode>
+	uint Bnode<Type_Bnode>::is_rchild(){
+		if(!this->is_root()){
+			return (this == this->get_parent()->get_rchild());
+		}else{
+			return FALSE;
+		}
+	}
+	
+
 	/*
 		按照顺序从上往下，从左往右一个一个插入节点
 	*/
@@ -86,17 +107,17 @@ namespace mmath
 		}else{
 			// 遍历顺序:前序0，中序1，后序2
 			if(0 == order){
-				cout<<root->get_data()<<" ";
+				cout<<root->get_data()<<"(node_h/l_h/r_h)=("<<root->get_node_h()<<"/"<<root->get_ltree_h()<<"/"<<root->get_rtree_h()<<")\n";
 				traverse(root->get_lchild(), order);
 				traverse(root->get_rchild(), order);
 			}else if(1 == order){
 				traverse(root->get_lchild(), order);
-				cout<<root->get_data()<<" ";
+				cout<<root->get_data()<<"(node_h/l_h/r_h)=("<<root->get_node_h()<<"/"<<root->get_ltree_h()<<"/"<<root->get_rtree_h()<<")\n";
 				traverse(root->get_rchild(), order);
 			}else{
 				traverse(root->get_lchild(), order);
 				traverse(root->get_rchild(), order);
-				cout<<root->get_data()<<" ";
+				cout<<root->get_data()<<"(node_h/l_h/r_h)=("<<root->get_node_h()<<"/"<<root->get_ltree_h()<<"/"<<root->get_rtree_h()<<")\n";
 			}
 			return;
 		}
@@ -231,12 +252,68 @@ namespace mmath
 	}
 
 
+	/*
+		以node为起点向上递归更新node到root路径上的左右子树高度
+		和各节点的结点高度(当前处理的是node父节点的高度信息，
+		node自身的高度信息在前一次递归过程中更新。)
+		level表示node的高度等级，即当前node所处的位置上ltree_h和rtree_h
+		的最大值，防止重复增加。如下所示:从左往右插入2的过程中，
+		6.9的ltree_h是不应该增加的，应一直为2，即这里6.9的level就是2。
+				6.9                                             6.9
+		3.3                   ===>                  3.3
+		        4                                  2              4
+	*/
+	template <class Type_Btree>
+	state Btree<Type_Btree>::add_height_from_current_node_to_root(Bnode<Type_Btree> *node, sint32 level){
+		sint32 parent_level = level+1;
+		if(node->is_root()){  // node是根节点
+			return OK;
+		}else{
+			if(node->is_lchild()){  // node是左孩子
+				//只有满足下面的条件，左子树的高度才加1，防止重复加
+				if(node->get_parent()->get_ltree_h() < parent_level){
+					// node父节点的左子树高度加1
+					node->get_parent()->set_ltree_h(node->get_parent()->get_ltree_h() + 1); 
+				}
+				// node父节点的节点高度刷新
+				node->get_parent()->refresh_node_h();
+				// node父节点为新的更新起始节点
+				return add_height_from_current_node_to_root(node->get_parent(), parent_level);
+			}else if(node->is_rchild()){
+				if(node->get_parent()->get_rtree_h() < parent_level){
+					// node父节点的右子树高度加1
+					node->get_parent()->set_rtree_h(node->get_parent()->get_rtree_h() + 1); 
+				}
+				// node父节点的节点高度刷新
+				node->get_parent()->refresh_node_h();
+				// node父节点为新的更新起始节点
+				return add_height_from_current_node_to_root(node->get_parent(), parent_level);
+			}else{
+				cout<<"[class Btree] add_height_from_current_node_to_root ERROR: invalid node!"<<endl;
+				return FAILED;
+			}
+		}
+	}
+
+
 	template <class Type_Bstree>
-	Bnode<Type_Bstree>* BStree<Type_Bstree>::insert_recursive(uint32 flag, Bnode<Type_Bstree> *root, Bnode<Type_Bstree> *parent_of_root, Bnode<Type_Bstree> *new_node){
+	Bnode<Type_Bstree>* BStree<Type_Bstree>::insert_recursive(uint32 flag, 
+					Bnode<Type_Bstree> *root, Bnode<Type_Bstree> *parent_of_root, 
+					Bnode<Type_Bstree> *new_node){
+					
 		if(NULL == root){  // 当前位置是空的，可以插入
 			new_node->set_parent(parent_of_root);
-			if(0 == flag){parent_of_root->set_lchild(new_node);}
-			else{parent_of_root->set_rchild(new_node);}
+			new_node->set_node_h(1);
+			new_node->set_ltree_h(0);
+			new_node->set_rtree_h(0);
+			if(0 == flag){
+				parent_of_root->set_lchild(new_node);
+			}else{
+				parent_of_root->set_rchild(new_node);
+			}
+			if(OK != this->add_height_from_current_node_to_root(new_node, 0)){
+				cout<<"[class BStree] add_height_from_current_node_to_root ERROR!"<<endl;
+			}
 			return new_node;
 		}else{
 			if(new_node->get_data() <= root->get_data()){
@@ -256,12 +333,15 @@ namespace mmath
 			new_node->set_rchild((Bnode<Type_Bstree>*)NULL);
 			new_node->set_parent((Bnode<Type_Bstree>*)NULL);
 		}else{
-			cout<<"[class Bstree] ERROR: NULL pointer input!"<<endl;
+			cout<<"[class Bstree] insert_node ERROR: NULL pointer input!"<<endl;
 			return NULL;
 		}
 
 		if(NULL == this->get_root()){
 			this->set_root(new_node);
+			this->get_root()->set_node_h(1);
+			this->get_root()->set_ltree_h(0);
+			this->get_root()->set_rtree_h(0);
 			cout<<"[class Bstree] Create a new bstree, insert the new node as the root node!"<<endl;
 			return this->get_root();
 		}else{
@@ -796,20 +876,24 @@ namespace mmath
 		Type_Sort *pdata_temp = pdata + left;  // 支持子数组
 		BStree<Type_Sort> bstree;
 		Bnode<Type_Sort> *node = new Bnode<Type_Sort>[right - left + 1];
-		vector<Type_Sort> sorted;
-		sint32 i, ld, rd, right_side = right - left;
-		uint balance = 0, reverse = is_reverse();
-
+		//vector<Type_Sort> sorted;
+		sint32 i, right_side = right - left;
+		//uint balance = 0, reverse = is_reverse();
+		//sint32 ld, rd;
+		
 		for(i=0; i<=right_side; i++){
 			node[i].set_data(pdata_temp[i]);
 			bstree.insert_node(&node[i]);
 		}
+
+		bstree.traverse(bstree.get_root(), 1);
+		/*
 		ld = bstree.depth(bstree.get_root()->get_lchild());
 		rd = bstree.depth(bstree.get_root()->get_rchild());
 		cout<<"depth of l_child: "<<ld<<", depth of r_child: "<<rd<<endl;
 		balance = bstree.is_balanced(bstree.get_root());
 		cout<<"balance: "<<(balance?"TRUE":"FALSE")<<endl;
-		/*
+		
 		get_data_from_bstree(bstree.get_root(), sorted);
 		for(i=0; i<=right_side; i++){
 			if(reverse){

@@ -31,23 +31,39 @@ namespace mmath
 	template <class Type_Bnode>
 	class Bnode{
 	public:
-		Bnode(){data = (Type_Bnode)0; lchild = NULL; rchild = NULL; parent = NULL;}
-		Bnode(Type_Bnode d){data = d; lchild = NULL; rchild = NULL; parent = NULL;}
+		Bnode(){data = (Type_Bnode)0; node_h = ltree_h = rtree_h = 0; lchild = NULL; rchild = NULL; parent = NULL;}
+		Bnode(Type_Bnode d){data = d; node_h = ltree_h = rtree_h = 0; lchild = NULL; rchild = NULL; parent = NULL;}
 		virtual ~Bnode(){}
 		void set_data(Type_Bnode dat){data = dat;}
+		uint is_lchild();
+		uint is_rchild();
+		uint is_root(){return (parent == NULL && node_h > 0);}
 		Type_Bnode get_data(){return data;}
 		Bnode *get_lchild(){return lchild;}
 		Bnode *get_rchild(){return rchild;}
 		Bnode *get_parent(){return parent;}
+		sint32 get_balance_factor(){return ltree_h - rtree_h;}
+		sint32 get_node_h(){return node_h;}
+		sint32 get_ltree_h(){return ltree_h;}
+		sint32 get_rtree_h(){return rtree_h;}
+		
 		void set_lchild(Bnode *addr){lchild = addr;}
 		void set_rchild(Bnode *addr){rchild = addr;}
 		void set_parent(Bnode *addr){parent = addr;}
+		void set_node_h(sint32 h){node_h = h;}
+		void set_ltree_h(sint32 h){ltree_h = h;}
+		void set_rtree_h(sint32 h){rtree_h = h;}
+		void refresh_node_h(){node_h = (ltree_h > rtree_h ? ltree_h : rtree_h) + 1;}
 
 	private:
 		Bnode *parent;
 		Type_Bnode data;
 		Bnode *lchild;
 		Bnode *rchild;
+		//sint32 balance_factor;  //结点平衡因子，定义为ltree_h - rtree_h，可为负
+		sint32 node_h;	 //结点高度，定义为ltree_h 和rtree_h的较大者加1
+		sint32 ltree_h;  //左子树高度，定义为该树中最长路径的结点数
+		sint32 rtree_h;  //右子树高度，定义为该树中最长路径的结点数
 	};
 
 
@@ -68,9 +84,10 @@ namespace mmath
 			Bnode<Type_Btree> *right_rotate(Bnode<Type_Btree> *root);
 			Bnode<Type_Btree> *leftright_rotate(Bnode<Type_Btree> *root);
 			Bnode<Type_Btree> *rightleft_rotate(Bnode<Type_Btree> *root);
+			state add_height_from_current_node_to_root(Bnode<Type_Btree> *node, sint32 level);
 			
 		protected:
-			Bnode<Type_Btree> *root;			
+			Bnode<Type_Btree> *root;
 	};
 
 
@@ -91,7 +108,7 @@ namespace mmath
 		class of sort, usage:
 		1. Instantiate an object, i.e. Sort<T> sf8Sort, if you want to sort in a reverse order, then Sort<T> sf8Sort(TRUE).
 		2. Pass the array to the sort method with the bounds of the array, sf8Sort.sort_method(array, left_ele_index, right_ele_index),
-		sort_method stands for select_sort, quick_sort, insert_sort, shell_sort, bubble_sort, heap_sort, merge_sort.
+		sort_method stands for select_sort, quick_sort, insert_sort, shell_sort, bubble_sort, heap_sort, merge_sort, bitree_sort.
 		3. Support child array sort.
 		4. To validate the result, use sf8Sort.test(array, left_ele_index, right_ele_index), TRUE for OK, FALSE the otherwise.
 	*/
