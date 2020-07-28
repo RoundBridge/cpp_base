@@ -188,13 +188,14 @@ namespace mmath
 		c.然后删除这个节点即相当于把我们想删除的节点删除了
 	*/
 	template <class Type_Bstree>
-	void BStree<Type_Bstree>::adjust_bstree(Bnode<Type_Bstree> *node){
+	state BStree<Type_Bstree>::adjust_bstree(Bnode<Type_Bstree> *node){
 		Bnode<Type_Bstree> *root = this->get_root();
 		Bnode<Type_Bstree> *temp = NULL, *replace = NULL;
+		state ret = OK;
 		
 		if(NULL == root || NULL == node){
 			cout<<"[class Bstree] NULL POINTER!"<<endl;
-			return;
+			return NULL_PTR;
 		}
 		
 		if(NULL == node->get_lchild() && NULL == node->get_rchild()){ // 删除节点是叶子结点
@@ -207,7 +208,7 @@ namespace mmath
 					node->get_parent()->set_rchild(NULL);
 				}else{
 					cout<<"[class Bstree] 1.NODE TO BE DELETE ERROR!"<<endl;
-					return;
+					return PARAM_ERR;
 				}
 			}
 		}else if(NULL != node->get_lchild() && NULL == node->get_rchild()){ //只有左孩子
@@ -223,7 +224,7 @@ namespace mmath
 					node->get_parent()->set_rchild(node->get_lchild());
 				}else{
 					cout<<"[class Bstree] 2.NODE TO BE DELETE ERROR!"<<endl;
-					return;
+					return PARAM_ERR;
 				}
 			}
 		}else if(NULL == node->get_lchild() && NULL != node->get_rchild()){ //只有右孩子
@@ -239,7 +240,7 @@ namespace mmath
 					node->get_parent()->set_rchild(node->get_rchild());
 				}else{
 					cout<<"[class Bstree] 3.NODE TO BE DELETE ERROR!"<<endl;
-					return;
+					return PARAM_ERR;
 				}
 			}
 		}else{  //删除节点既有左孩子，又有右孩子
@@ -256,8 +257,8 @@ namespace mmath
 				//这种情况是存在的:删除节点的右子树的每个节点都只有右子树
 				replace->get_parent()->set_rchild(replace->get_rchild());
 			}else{
-				cout<<"[class Bstree] 4.NODE TO BE DELETE ERROR!"<<endl;
-				return;
+				cout<<"[class Bstree] 4.REPLACE NODE ERROR!"<<endl;
+				return PARAM_ERR;
 			}
 			if(replace->get_rchild()){
 				replace->get_rchild()->set_parent(replace->get_parent());
@@ -267,22 +268,23 @@ namespace mmath
 			}
 			node->set_data(replace->get_data());
 			//if(root == node){}
-			// 删除节点同时又是根节点，不需要处理，因为此时树不为空
-			return;
+			// 删除节点同时又是根节点，不需要处理，因为此时树不为空			
 		}
+		return ret;
 	}
 
 
 	template <class Type_Bstree>
-	void BStree<Type_Bstree>::delete_node(Bnode<Type_Bstree> *node){
+	state BStree<Type_Bstree>::delete_node(Bnode<Type_Bstree> *node){
 		Bnode<Type_Bstree>* del_node = this->find_node(node);
+		state ret = OK;
 		
 		if(NULL == del_node){
 			cout<<"[class Bstree] NO SUCH NODE TO DELETE!"<<endl;
-			return;
+			return NULL_PTR;
 		}else{
-			adjust_bstree(del_node);
-			return;
+			ret = adjust_bstree(del_node);
+			return ret;
 		}
 	}
 
@@ -584,7 +586,7 @@ namespace mmath
 		return;
 	}
 
-#if 0
+#if 1
 	template <class Type_Sort>
 	void Sort<Type_Sort>::bitree_sort(Type_Sort *pdata, sint32 left, sint32 right){
 		if (left >= right) {
@@ -621,6 +623,8 @@ namespace mmath
 		if (left >= right) {
 			return;
 		}
+		state ret = OK;
+		sint8 flag = 0;
 		Type_Sort del_num;
 		Type_Sort *pdata_temp = pdata + left;  // 支持子数组
 		BStree<Type_Sort> bstree;
@@ -642,24 +646,37 @@ namespace mmath
 			}
 		}
 		sorted.clear();
-		cout<<"\nPlease input the number you want to delete: "<<endl;
-		cin>>del_num;
-		while(del_num != 9999){
-			cout<<"the number you want to delete is:"<<del_num<<endl;
-			Bnode<Type_Sort> del_node(del_num);
-			bstree.delete_node(&del_node);
-			j++;
-			get_data_from_bstree(bstree.get_root(), sorted);
-			for(i=0; i<=right_side-j; i++){
-				if(reverse){
-					cout<<sorted.at(right_side-j-i)<<", ";
-				}else{
-					cout<<sorted.at(i)<<", ";
-				}
-			}
-			sorted.clear();
+		
+		cout<<"\nIf you want to delete a number, press y, else press n.";
+		cin>>flag;
+		while(flag == 'y'){
 			cout<<"\nPlease input the number you want to delete: "<<endl;
-			cin>>del_num;
+			cin>>del_num;	
+			Bnode<Type_Sort> del_node(del_num);
+			ret = bstree.delete_node(&del_node);
+			if(OK == ret){
+				j++;
+				get_data_from_bstree(bstree.get_root(), sorted);
+				for(i=0; i<=right_side-j; i++){
+					if(reverse){
+						pdata_temp[i] = sorted.at(right_side-j-i);
+						cout<<sorted.at(right_side-j-i)<<", ";
+					}else{
+						pdata_temp[i] = sorted.at(i);
+						cout<<sorted.at(i)<<", ";
+					}
+				}
+				sorted.clear();
+				if(OK == test(pdata_temp, 0, right_side-j)){
+					cout<<"\nDelete node and sort successfully!"<<endl;
+				}else{
+					cout<<"\nDelete node and sort FAILED!"<<endl;
+				}
+			}else{
+				cout<<"delete_node err, ret = "<<ret;
+			}			
+			cout<<"\nContinue to delete?[y|n]: ";
+			cin>>flag;
 		}
 
 		delete [] node;
@@ -673,19 +690,19 @@ namespace mmath
 	uint32 Sort<Type_Sort>::test(Type_Sort *pdata, sint32 left, sint32 right){
 		uint reverse = is_reverse();
 		sint32 i;
-		uint32 ret = TRUE;
+		uint32 ret = OK;
 		
 		for(i=left; i<right; i++){
 			if(reverse){
 				if(pdata[i]<pdata[i+1]){
 					cout<<"[class Sort] ERROR! REVERSE SORT FAILED! ["<<i<<"]: "<<pdata[i]<<", ["<<i+1<<"]: "<<pdata[i+1]<<endl;
-					ret = FALSE;
+					ret = FAILED;
 					break;
 				}
 			}else{
 				if(pdata[i]>pdata[i+1]){
 					cout<<"[class Sort] ERROR! SORT FAILED! ["<<i<<"]: "<<pdata[i]<<", ["<<i+1<<"]: "<<pdata[i+1]<<endl;
-					ret = FALSE;
+					ret = FAILED;
 					break;
 				}
 			}

@@ -33,10 +33,11 @@ int main()
 		cout << iter->first << ", addr: " << (iter->second).first << ", array size: " << (iter->second).second << endl;
 		//进行排序
 		sf8Sort.bitree_sort((iter->second).first, 0, (iter->second).second-1);
+		#if 1
 		//对排序结果进行检验
 		test_result = sf8Sort.test((iter->second).first, 0, (iter->second).second-1);
 		//输出检验结果
-		if(test_result==TRUE){
+		if(test_result==OK){
 			cout<<"Sort of array "<<iter->first<<" complete successfully!"<<endl<<endl;
 		}else{
 			cout<<"Sort of array "<<iter->first<<" FAILED!"<<endl;
@@ -45,7 +46,7 @@ int main()
 			}
 			break;  //一旦出错，立即停止
 		}
-		
+		#endif
 	}
 	return 0;
 }

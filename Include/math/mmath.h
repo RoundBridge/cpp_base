@@ -74,8 +74,8 @@ namespace mmath
 		BStree():Btree<Type_Bstree>(){this->root = NULL;}
 		BStree(Bnode<Type_Bstree> *p):Btree<Type_Bstree>(){this->root = p;}
 		virtual ~BStree(){}
-		void adjust_bstree(Bnode<Type_Bstree> *node);
-		void delete_node(Bnode<Type_Bstree> *node);
+		state adjust_bstree(Bnode<Type_Bstree> *node);
+		state delete_node(Bnode<Type_Bstree> *node);
 		Bnode<Type_Bstree> *insert_node(Bnode<Type_Bstree> *new_node);
 		Bnode<Type_Bstree> *insert_recursive(uint32 flag, Bnode<Type_Bstree> *root, Bnode<Type_Bstree> *parent_of_root, Bnode<Type_Bstree> *new_node);
 	};
