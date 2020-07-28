@@ -12,6 +12,7 @@ Version: 		0.0.1
 
 
 #include <iostream>
+#include <cmath>
 #include <deque>
 #include <vector>
 #include "types.h"
@@ -22,6 +23,7 @@ using std::cout;
 using std::endl;
 using std::deque;
 using std::vector;
+
 
 namespace mmath
 {
@@ -128,7 +130,106 @@ namespace mmath
 			return NULL;  // 找不到该节点
 		}
 	}
-	
+
+
+	template <class Type_Btree>
+	sint Btree<Type_Btree>::depth(Bnode<Type_Btree> *node){
+		if(NULL == node){return 0;}
+		else{
+			sint ld = depth(node->get_lchild());
+			sint rd = depth(node->get_rchild());
+			return ld > rd ? ld+1 : rd+1;
+		}
+	}
+
+
+	template <class Type_Btree>
+	uint Btree<Type_Btree>::is_balanced(Bnode<Type_Btree> *node){
+		if(NULL == node){
+			cout<<"[class Btree] WARNING: NULL TREE!"<<endl;
+			return TRUE;
+		}
+		return abs(depth(node->get_lchild()) - depth(node->get_rchild())) <= 1 && is_balanced(node->get_lchild()) && is_balanced(node->get_rchild());
+	}
+
+
+	/*
+		左旋:
+		以某个结点作为旋转结点(root)，其右子结点变为旋转结点
+		的父结点，右子结点的左子结点变为旋转结点的右子结点，
+		左子结点保持不变，旋转结点变为右子结点的左子节点。 
+	*/
+	template <class Type_Btree>
+	Bnode<Type_Btree>* Btree<Type_Btree>::left_rotate(Bnode<Type_Btree> *root){
+		if(NULL == root){return root;}
+		Bnode<Type_Btree> *temp = root->get_rchild();
+		if(NULL == temp){
+			cout<<"[class Btree] left_rotate error, root has no right child!\n";
+			return root;
+		}
+		temp->set_parent(root->get_parent());
+		root->set_parent(temp);
+		Bnode<Type_Btree> *child;
+		child = temp->get_lchild();
+		root->set_rchild(child);
+		if(child){
+			child->set_parent(root);
+		}		
+		temp->set_lchild(root);
+		return temp;
+	}
+
+
+	/*
+		右旋:
+		以某个结点作为旋转结点(root)，其左子结点变为旋转结点
+		的父结点，左子结点的右子结点变为旋转结点的左子结点，
+		右子结点保持不变，旋转结点变为左子结点的右子节点。 
+	*/
+	template <class Type_Btree>
+	Bnode<Type_Btree>* Btree<Type_Btree>::right_rotate(Bnode<Type_Btree> *root){
+		if(NULL == root){return root;}
+		Bnode<Type_Btree> *temp = root->get_lchild(); 
+		if(NULL == temp){
+			cout<<"[class Btree] right_rotate error, root has no left child!\n";
+			return root;
+		}
+		temp->set_parent(root->get_parent());
+		root->set_parent(temp);
+		Bnode<Type_Btree> *child;
+		child = temp->get_rchild();
+		root->set_lchild(child);
+		if(child){
+			child->set_parent(root);
+		}	
+		temp->set_rchild(root);
+		return temp;
+	}
+
+
+	/*
+		左旋-右旋:
+		先对root的左子树左旋再对root右旋 
+	*/
+	template <class Type_Btree>
+	Bnode<Type_Btree>* Btree<Type_Btree>::leftright_rotate(Bnode<Type_Btree> *root){
+		if(NULL == root){return root;}
+		root->set_lchild(left_rotate(root->get_lchild()));
+		return right_rotate(root);
+	}
+
+
+	/*
+		右旋-左旋
+		先对root的右子树右旋再对root左旋 
+	*/
+	template <class Type_Btree>
+	Bnode<Type_Btree>* Btree<Type_Btree>::rightleft_rotate(Bnode<Type_Btree> *root){
+		if(NULL == root){return root;}
+		root->set_rchild(right_rotate(root->get_rchild()));
+		return left_rotate(root);
+	}
+
 
 	template <class Type_Bstree>
 	Bnode<Type_Bstree>* BStree<Type_Bstree>::insert_recursive(uint32 flag, Bnode<Type_Bstree> *root, Bnode<Type_Bstree> *parent_of_root, Bnode<Type_Bstree> *new_node){
@@ -586,7 +687,7 @@ namespace mmath
 		return;
 	}
 
-#if 1
+#if 0
 	template <class Type_Sort>
 	void Sort<Type_Sort>::bitree_sort(Type_Sort *pdata, sint32 left, sint32 right){
 		if (left >= right) {
@@ -617,7 +718,8 @@ namespace mmath
 		
 		return;		
 	}
-#else
+
+#elif 0
 	template <class Type_Sort>
 	void Sort<Type_Sort>::bitree_sort(Type_Sort *pdata, sint32 left, sint32 right){
 		if (left >= right) {
@@ -679,6 +781,44 @@ namespace mmath
 			cin>>flag;
 		}
 
+		delete [] node;
+		
+		return; 	
+	}
+
+#elif 1
+	template <class Type_Sort>
+	void Sort<Type_Sort>::bitree_sort(Type_Sort *pdata, sint32 left, sint32 right){
+		if (left >= right) {
+			return;
+		}
+
+		Type_Sort *pdata_temp = pdata + left;  // 支持子数组
+		BStree<Type_Sort> bstree;
+		Bnode<Type_Sort> *node = new Bnode<Type_Sort>[right - left + 1];
+		vector<Type_Sort> sorted;
+		sint32 i, ld, rd, right_side = right - left;
+		uint balance = 0, reverse = is_reverse();
+
+		for(i=0; i<=right_side; i++){
+			node[i].set_data(pdata_temp[i]);
+			bstree.insert_node(&node[i]);
+		}
+		ld = bstree.depth(bstree.get_root()->get_lchild());
+		rd = bstree.depth(bstree.get_root()->get_rchild());
+		cout<<"depth of l_child: "<<ld<<", depth of r_child: "<<rd<<endl;
+		balance = bstree.is_balanced(bstree.get_root());
+		cout<<"balance: "<<(balance?"TRUE":"FALSE")<<endl;
+		/*
+		get_data_from_bstree(bstree.get_root(), sorted);
+		for(i=0; i<=right_side; i++){
+			if(reverse){
+				pdata_temp[i] = sorted.at(right_side-i);
+			}else{
+				pdata_temp[i] = sorted.at(i);
+			}
+		}
+		*/
 		delete [] node;
 		
 		return; 	

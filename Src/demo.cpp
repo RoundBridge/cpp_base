@@ -33,7 +33,7 @@ int main()
 		cout << iter->first << ", addr: " << (iter->second).first << ", array size: " << (iter->second).second << endl;
 		//进行排序
 		sf8Sort.bitree_sort((iter->second).first, 0, (iter->second).second-1);
-		#if 1
+		#if 0
 		//对排序结果进行检验
 		test_result = sf8Sort.test((iter->second).first, 0, (iter->second).second-1);
 		//输出检验结果

@@ -62,6 +62,12 @@ namespace mmath
 			Bnode<Type_Btree> *insert_node(Bnode<Type_Btree> *new_node);
 			void traverse(Bnode<Type_Btree> *root, uint32 order); // 遍历顺序:前序0，中序1，后序2
 			Bnode<Type_Btree> *find_node(Bnode<Type_Btree> *node);
+			uint is_balanced(Bnode<Type_Btree> *node);
+			sint depth(Bnode<Type_Btree> *node);
+			Bnode<Type_Btree> *left_rotate(Bnode<Type_Btree> *root);
+			Bnode<Type_Btree> *right_rotate(Bnode<Type_Btree> *root);
+			Bnode<Type_Btree> *leftright_rotate(Bnode<Type_Btree> *root);
+			Bnode<Type_Btree> *rightleft_rotate(Bnode<Type_Btree> *root);
 			
 		protected:
 			Bnode<Type_Btree> *root;			
