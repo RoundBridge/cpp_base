@@ -17,8 +17,8 @@ using mmath::Sort;
 int main()
 {
 	sf8 a1[20] = {0.1, 8.1, -4.7, 1, 6.9, 9.2, 0, 3.3, 1, -77, 10.01, -0.1, 2, 65, -4.7, 200, -7, 4, -6.9, -6.9};
-	sf8 a2[3] = {0.1, 8.1, -4.7};
-	sf8 a3[2] = {0.1, -4.7};
+	sf8 a2[3] = {0.1, 8.1, 9};
+	sf8 a3[6] = {0.1, 8.1, -4.7, 1, 6.9, 9.2};
 	multimap<string, pair<sf8*, sint32> > arrays;
 	multimap<string, pair<sf8*, sint32> >::iterator iter;
 	Sort<sf8> sf8Sort(TRUE);
@@ -26,7 +26,7 @@ int main()
 
 	arrays.insert(make_pair("a1", make_pair(a1, 20)));
 	arrays.insert(make_pair("a2", make_pair(a2, 3)));
-	arrays.insert(make_pair("a3", make_pair(a3, 2)));
+	arrays.insert(make_pair("a3", make_pair(a3, 6)));
 
 	for (iter = arrays.begin(); iter != arrays.end(); iter++){
 		//打印待排序数组相关信息

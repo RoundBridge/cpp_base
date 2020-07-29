@@ -166,8 +166,8 @@ namespace mmath
 
 	template <class Type_Btree>
 	uint Btree<Type_Btree>::is_balanced(Bnode<Type_Btree> *node){
-		if(NULL == node){
-			cout<<"[class Btree] WARNING: NULL TREE!"<<endl;
+		if(NULL == node){  // 空树也是平衡的
+			//cout<<"[class Btree] WARNING: NULL TREE!"<<endl;
 			return TRUE;
 		}
 		return abs(depth(node->get_lchild()) - depth(node->get_rchild())) <= 1 && is_balanced(node->get_lchild()) && is_balanced(node->get_rchild());
@@ -178,7 +178,12 @@ namespace mmath
 		左旋:
 		以某个结点作为旋转结点(root)，其右子结点变为旋转结点
 		的父结点，右子结点的左子结点变为旋转结点的右子结点，
-		左子结点保持不变，旋转结点变为右子结点的左子节点。 
+		左子结点保持不变，旋转结点变为右子结点的左子节点。
+
+		注意:调用该函数后，只能保证返回的结点及其左右子树的
+		ltree_h/rtree_h/node_h信息的正确性，如果因为返回结点的调整导
+		致其父节点直至树根的路径上的结点的ltree_h/rtree_h/node_h信息
+		的变化，需要调用者额外进行更新。
 	*/
 	template <class Type_Btree>
 	Bnode<Type_Btree>* Btree<Type_Btree>::left_rotate(Bnode<Type_Btree> *root){
@@ -188,7 +193,17 @@ namespace mmath
 			cout<<"[class Btree] left_rotate error, root has no right child!\n";
 			return root;
 		}
-		temp->set_parent(root->get_parent());
+		if(!root->is_root()){  // 如果root不是根节点
+			//将root的父节点和temp联系起来
+			if(root->is_lchild()){
+				root->get_parent()->set_lchild(temp);
+			}else{
+				root->get_parent()->set_rchild(temp);
+			}			
+		}else{  // 如果root是根节点，则将根节点换成temp
+			this->set_root(temp);
+		}		
+		temp->set_parent(root->get_parent());  // 如果root是根节点，则这里就设置成了NULL
 		root->set_parent(temp);
 		Bnode<Type_Btree> *child;
 		child = temp->get_lchild();
@@ -197,6 +212,15 @@ namespace mmath
 			child->set_parent(root);
 		}		
 		temp->set_lchild(root);
+
+		//左旋操作只会改变旋转结点和其右孩子的ltree_h/rtree_h/node_h信息
+		temp->set_ltree_h(depth(temp->get_lchild()));
+		temp->set_rtree_h(depth(temp->get_rchild()));
+		temp->refresh_node_h();
+		root->set_ltree_h(depth(root->get_lchild()));
+		root->set_rtree_h(depth(root->get_rchild()));
+		root->refresh_node_h();
+		
 		return temp;
 	}
 
@@ -205,7 +229,12 @@ namespace mmath
 		右旋:
 		以某个结点作为旋转结点(root)，其左子结点变为旋转结点
 		的父结点，左子结点的右子结点变为旋转结点的左子结点，
-		右子结点保持不变，旋转结点变为左子结点的右子节点。 
+		右子结点保持不变，旋转结点变为左子结点的右子节点。
+
+		注意:调用该函数后，只能保证返回的结点及其左右子树的
+		ltree_h/rtree_h/node_h信息的正确性，如果因为返回结点的调整导
+		致其父节点直至树根的路径上的结点的ltree_h/rtree_h/node_h信息
+		的变化，需要调用者额外进行更新。
 	*/
 	template <class Type_Btree>
 	Bnode<Type_Btree>* Btree<Type_Btree>::right_rotate(Bnode<Type_Btree> *root){
@@ -215,7 +244,17 @@ namespace mmath
 			cout<<"[class Btree] right_rotate error, root has no left child!\n";
 			return root;
 		}
-		temp->set_parent(root->get_parent());
+		if(!root->is_root()){
+			//将root的父节点和temp联系起来
+			if(root->is_lchild()){
+				root->get_parent()->set_lchild(temp);
+			}else{
+				root->get_parent()->set_rchild(temp);
+			}
+		}else{  // 如果root是根节点，则将根节点换成temp
+			this->set_root(temp);
+		}
+		temp->set_parent(root->get_parent());  // 如果root是根节点，则这里就设置成了NULL
 		root->set_parent(temp);
 		Bnode<Type_Btree> *child;
 		child = temp->get_rchild();
@@ -224,6 +263,15 @@ namespace mmath
 			child->set_parent(root);
 		}	
 		temp->set_rchild(root);
+
+		//右旋操作只会改变旋转结点和其左孩子的ltree_h/rtree_h/node_h信息
+		temp->set_ltree_h(depth(temp->get_lchild()));
+		temp->set_rtree_h(depth(temp->get_rchild()));
+		temp->refresh_node_h();
+		root->set_ltree_h(depth(root->get_lchild()));
+		root->set_rtree_h(depth(root->get_rchild()));
+		root->refresh_node_h();
+		
 		return temp;
 	}
 
@@ -231,6 +279,11 @@ namespace mmath
 	/*
 		左旋-右旋:
 		先对root的左子树左旋再对root右旋 
+
+		注意:调用该函数后，只能保证返回的结点及其左右子树的
+		ltree_h/rtree_h/node_h信息的正确性，如果因为返回结点的调整导
+		致其父节点直至树根的路径上的结点的ltree_h/rtree_h/node_h信息
+		的变化，需要调用者额外进行更新。
 	*/
 	template <class Type_Btree>
 	Bnode<Type_Btree>* Btree<Type_Btree>::leftright_rotate(Bnode<Type_Btree> *root){
@@ -243,6 +296,11 @@ namespace mmath
 	/*
 		右旋-左旋
 		先对root的右子树右旋再对root左旋 
+
+		注意:调用该函数后，只能保证返回的结点及其左右子树的
+		ltree_h/rtree_h/node_h信息的正确性，如果因为返回结点的调整导
+		致其父节点直至树根的路径上的结点的ltree_h/rtree_h/node_h信息
+		的变化，需要调用者额外进行更新。
 	*/
 	template <class Type_Btree>
 	Bnode<Type_Btree>* Btree<Type_Btree>::rightleft_rotate(Bnode<Type_Btree> *root){
@@ -257,11 +315,11 @@ namespace mmath
 		和各节点的结点高度(当前处理的是node父节点的高度信息，
 		node自身的高度信息在前一次递归过程中更新。)
 		level表示node的高度等级，即当前node所处的位置上ltree_h和rtree_h
-		的最大值，防止重复增加。如下所示:从左往右插入2的过程中，
+		的较大值，防止重复增加。如下所示:从左往右插入2的过程中，
 		6.9的ltree_h是不应该增加的，应一直为2，即这里6.9的level就是2。
 				6.9                                             6.9
-		3.3                   ===>                  3.3
-		        4                                  2              4
+		3.3                   ===>                     3.3
+		        4                                  2               4
 	*/
 	template <class Type_Btree>
 	state Btree<Type_Btree>::add_height_from_current_node_to_root(Bnode<Type_Btree> *node, sint32 level){
@@ -270,20 +328,15 @@ namespace mmath
 			return OK;
 		}else{
 			if(node->is_lchild()){  // node是左孩子
-				//只有满足下面的条件，左子树的高度才加1，防止重复加
-				if(node->get_parent()->get_ltree_h() < parent_level){
-					// node父节点的左子树高度加1
-					node->get_parent()->set_ltree_h(node->get_parent()->get_ltree_h() + 1); 
-				}
+				// node父节点的左子树高度只能是parent_level
+				node->get_parent()->set_ltree_h(parent_level); 				
 				// node父节点的节点高度刷新
 				node->get_parent()->refresh_node_h();
 				// node父节点为新的更新起始节点
 				return add_height_from_current_node_to_root(node->get_parent(), parent_level);
 			}else if(node->is_rchild()){
-				if(node->get_parent()->get_rtree_h() < parent_level){
-					// node父节点的右子树高度加1
-					node->get_parent()->set_rtree_h(node->get_parent()->get_rtree_h() + 1); 
-				}
+				// node父节点的右子树高度只能是parent_level
+				node->get_parent()->set_rtree_h(parent_level); 
 				// node父节点的节点高度刷新
 				node->get_parent()->refresh_node_h();
 				// node父节点为新的更新起始节点
@@ -318,8 +371,32 @@ namespace mmath
 		}else{
 			if(new_node->get_data() <= root->get_data()){
 				insert_recursive(0, root->get_lchild(), root, new_node);
+				
+				if(!this->is_balanced(root)){
+					Bnode<Type_Bstree> *temp = NULL;
+					if(new_node->get_data() > root->get_lchild()->get_data()){
+						// 插入在左孩子右边，左孩子先左旋
+						temp = this->left_rotate(root->get_lchild());
+						this->add_height_from_current_node_to_root(temp, temp->get_node_h()-1);
+					}
+					// 节点右旋
+					temp = this->right_rotate(root);
+					this->add_height_from_current_node_to_root(temp, temp->get_node_h()-1);
+				}			
 			}else{
 				insert_recursive(1, root->get_rchild(), root, new_node);
+
+				if(!this->is_balanced(root)){
+					Bnode<Type_Bstree> *temp = NULL;
+					if(new_node->get_data() <= root->get_rchild()->get_data()){
+						// 插入在右孩子左边，右孩子先右旋
+						temp = this->right_rotate(root->get_rchild());
+						this->add_height_from_current_node_to_root(temp, temp->get_node_h()-1);
+					}
+					// 节点左旋
+					temp = this->left_rotate(root);
+					this->add_height_from_current_node_to_root(temp, temp->get_node_h()-1);
+				}
 			}
 			return new_node;
 		}		
@@ -334,7 +411,7 @@ namespace mmath
 			new_node->set_parent((Bnode<Type_Bstree>*)NULL);
 		}else{
 			cout<<"[class Bstree] insert_node ERROR: NULL pointer input!"<<endl;
-			return NULL;
+			return this->get_root();
 		}
 
 		if(NULL == this->get_root()){
@@ -345,11 +422,12 @@ namespace mmath
 			cout<<"[class Bstree] Create a new bstree, insert the new node as the root node!"<<endl;
 			return this->get_root();
 		}else{
-			if(new_node->get_data() <= this->get_root()->get_data()){
-				insert_recursive(0, this->get_root()->get_lchild(), this->get_root(), new_node);
-			}else{
-				insert_recursive(1, this->get_root()->get_rchild(), this->get_root(), new_node);
-			}
+			//将对根节点的递归调用下沉到insert_recursive中，下面调用中的flag=0其实是没有意义的
+			//这样做的目的是在insert_recursive中递归返回进行平衡调整时，能正好针对root进行
+			//否则要针对parent_of_root进行旋转，而针对parent_of_root旋转是会有问题的
+			insert_recursive(0, this->get_root(), NULL, new_node);
+			//改变root只会在旋转时才可能发生，由于在左旋和右旋中已经针对根节点的改变
+			//进行了处理，故这里只要直接返回this->get_root()即可。
 			return this->get_root();
 		}
 	}
@@ -878,14 +956,15 @@ namespace mmath
 		Bnode<Type_Sort> *node = new Bnode<Type_Sort>[right - left + 1];
 		//vector<Type_Sort> sorted;
 		sint32 i, right_side = right - left;
-		//uint balance = 0, reverse = is_reverse();
+		uint balance = 0, reverse = is_reverse();
 		//sint32 ld, rd;
 		
 		for(i=0; i<=right_side; i++){
 			node[i].set_data(pdata_temp[i]);
 			bstree.insert_node(&node[i]);
+			balance = bstree.is_balanced(bstree.get_root());
+			cout<<"------------------data num: "<<i+1<<", balance: "<<(balance?"TRUE":"FALSE")<<endl;			
 		}
-
 		bstree.traverse(bstree.get_root(), 1);
 		/*
 		ld = bstree.depth(bstree.get_root()->get_lchild());
