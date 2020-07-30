@@ -24,7 +24,6 @@ using std::endl;
 using std::deque;
 using std::vector;
 
-
 namespace mmath
 {
 	template <class Type_Tools>
@@ -107,17 +106,48 @@ namespace mmath
 		}else{
 			// 遍历顺序:前序0，中序1，后序2
 			if(0 == order){
-				cout<<root->get_data()<<"(node_h/l_h/r_h)=("<<root->get_node_h()<<"/"<<root->get_ltree_h()<<"/"<<root->get_rtree_h()<<")\n";
+				cout<<root->get_data()<<"(node_h/l_h/r_h)=("<<root->get_node_h()<<"/"<<root->get_ltree_h()<<"/"<<root->get_rtree_h()<<") ";
+				if(root->get_parent()){cout<<"  parent: "<<root->get_parent()->get_data();}
+				else{cout<<"  root node!";}
+				
+				if(root->get_lchild()){cout<<"  l_child: "<<root->get_lchild()->get_data();}
+				else{cout<<"  l_child: NULL!";}
+				
+				if(root->get_rchild()){cout<<"  r_child: "<<root->get_rchild()->get_data();}
+				else{cout<<"  r_child: NULL!";}
+				cout<<endl;
+
 				traverse(root->get_lchild(), order);
 				traverse(root->get_rchild(), order);
 			}else if(1 == order){
 				traverse(root->get_lchild(), order);
-				cout<<root->get_data()<<"(node_h/l_h/r_h)=("<<root->get_node_h()<<"/"<<root->get_ltree_h()<<"/"<<root->get_rtree_h()<<")\n";
+				
+				cout<<root->get_data()<<"(node_h/l_h/r_h)=("<<root->get_node_h()<<"/"<<root->get_ltree_h()<<"/"<<root->get_rtree_h()<<") ";
+				if(root->get_parent()){cout<<"  parent: "<<root->get_parent()->get_data();}
+				else{cout<<"  root node!";}
+				
+				if(root->get_lchild()){cout<<"  l_child: "<<root->get_lchild()->get_data();}
+				else{cout<<"  l_child: NULL!";}
+				
+				if(root->get_rchild()){cout<<"  r_child: "<<root->get_rchild()->get_data();}
+				else{cout<<"  r_child: NULL!";}
+				cout<<endl;
+				
 				traverse(root->get_rchild(), order);
 			}else{
 				traverse(root->get_lchild(), order);
 				traverse(root->get_rchild(), order);
-				cout<<root->get_data()<<"(node_h/l_h/r_h)=("<<root->get_node_h()<<"/"<<root->get_ltree_h()<<"/"<<root->get_rtree_h()<<")\n";
+				
+				cout<<root->get_data()<<"(node_h/l_h/r_h)=("<<root->get_node_h()<<"/"<<root->get_ltree_h()<<"/"<<root->get_rtree_h()<<") ";
+				if(root->get_parent()){cout<<"  parent: "<<root->get_parent()->get_data();}
+				else{cout<<"  root node!";}
+				
+				if(root->get_lchild()){cout<<"  l_child: "<<root->get_lchild()->get_data();}
+				else{cout<<"  l_child: NULL!";}
+				
+				if(root->get_rchild()){cout<<"  r_child: "<<root->get_rchild()->get_data();}
+				else{cout<<"  r_child: NULL!";}
+				cout<<endl;
 			}
 			return;
 		}
@@ -322,7 +352,7 @@ namespace mmath
 		        4                                  2               4
 	*/
 	template <class Type_Btree>
-	state Btree<Type_Btree>::add_height_from_current_node_to_root(Bnode<Type_Btree> *node, sint32 level){
+	state Btree<Type_Btree>::refresh_height_from_current_node_to_root(Bnode<Type_Btree> *node, sint32 level){
 		sint32 parent_level = level+1;
 		if(node->is_root()){  // node是根节点
 			return OK;
@@ -333,16 +363,16 @@ namespace mmath
 				// node父节点的节点高度刷新
 				node->get_parent()->refresh_node_h();
 				// node父节点为新的更新起始节点
-				return add_height_from_current_node_to_root(node->get_parent(), parent_level);
+				return refresh_height_from_current_node_to_root(node->get_parent(), parent_level);
 			}else if(node->is_rchild()){
 				// node父节点的右子树高度只能是parent_level
 				node->get_parent()->set_rtree_h(parent_level); 
 				// node父节点的节点高度刷新
 				node->get_parent()->refresh_node_h();
 				// node父节点为新的更新起始节点
-				return add_height_from_current_node_to_root(node->get_parent(), parent_level);
+				return refresh_height_from_current_node_to_root(node->get_parent(), parent_level);
 			}else{
-				cout<<"[class Btree] add_height_from_current_node_to_root ERROR: invalid node!"<<endl;
+				cout<<"[class Btree] refresh_height_from_current_node_to_root ERROR: invalid node!"<<endl;
 				return FAILED;
 			}
 		}
@@ -364,8 +394,8 @@ namespace mmath
 			}else{
 				parent_of_root->set_rchild(new_node);
 			}
-			if(OK != this->add_height_from_current_node_to_root(new_node, 0)){
-				cout<<"[class BStree] add_height_from_current_node_to_root ERROR!"<<endl;
+			if(OK != this->refresh_height_from_current_node_to_root(new_node, 0)){
+				cout<<"[class BStree] refresh_height_from_current_node_to_root ERROR!"<<endl;
 			}
 			return new_node;
 		}else{
@@ -377,11 +407,11 @@ namespace mmath
 					if(new_node->get_data() > root->get_lchild()->get_data()){
 						// 插入在左孩子右边，左孩子先左旋
 						temp = this->left_rotate(root->get_lchild());
-						this->add_height_from_current_node_to_root(temp, temp->get_node_h()-1);
+						this->refresh_height_from_current_node_to_root(temp, temp->get_node_h()-1);
 					}
 					// 节点右旋
 					temp = this->right_rotate(root);
-					this->add_height_from_current_node_to_root(temp, temp->get_node_h()-1);
+					this->refresh_height_from_current_node_to_root(temp, temp->get_node_h()-1);
 				}			
 			}else{
 				insert_recursive(1, root->get_rchild(), root, new_node);
@@ -391,11 +421,11 @@ namespace mmath
 					if(new_node->get_data() <= root->get_rchild()->get_data()){
 						// 插入在右孩子左边，右孩子先右旋
 						temp = this->right_rotate(root->get_rchild());
-						this->add_height_from_current_node_to_root(temp, temp->get_node_h()-1);
+						this->refresh_height_from_current_node_to_root(temp, temp->get_node_h()-1);
 					}
 					// 节点左旋
 					temp = this->left_rotate(root);
-					this->add_height_from_current_node_to_root(temp, temp->get_node_h()-1);
+					this->refresh_height_from_current_node_to_root(temp, temp->get_node_h()-1);
 				}
 			}
 			return new_node;
@@ -545,6 +575,64 @@ namespace mmath
 			ret = adjust_bstree(del_node);
 			return ret;
 		}
+	}
+
+
+	template <class Type_Bstree>
+	Bnode<Type_Bstree>* BStree<Type_Bstree>::bulid_balanced_bstree_recursive(Type_Bstree *pdata, 
+											 sint32 left, sint32 right, Bnode<Type_Bstree>* addr){
+        sint32 mid = (left + right) / 2;
+		
+		addr[mid].set_data(pdata[mid]);
+		addr[mid].set_lchild(NULL);
+		addr[mid].set_rchild(NULL);
+		addr[mid].set_parent(NULL);
+		addr[mid].set_ltree_h(0);
+		addr[mid].set_rtree_h(0);
+		addr[mid].set_node_h(1);
+		
+		if (left <= mid - 1){
+			Bnode<Type_Bstree> *lchild = bulid_balanced_bstree_recursive(pdata, left, mid - 1, addr);
+			addr[mid].set_lchild(lchild);
+			lchild->set_parent(&addr[mid]);
+			this->refresh_height_from_current_node_to_root(lchild, lchild->get_node_h()-1);			
+		}
+		if (mid + 1 <= right){
+			Bnode<Type_Bstree> *rchild = bulid_balanced_bstree_recursive(pdata,  mid + 1, right, addr);
+			addr[mid].set_rchild(rchild);
+			rchild->set_parent(&addr[mid]);
+			this->refresh_height_from_current_node_to_root(rchild, rchild->get_node_h()-1);
+		}
+		
+		return (addr+mid);
+	}
+
+
+	template <class Type_Bstree>
+	Bnode<Type_Bstree>* BStree<Type_Bstree>::bulid_balanced_bstree(Type_Bstree *pdata, 
+											 sint32 left, sint32 right, Bnode<Type_Bstree>* addr){
+		if (right - left < 0 || NULL == addr || NULL == pdata){  // 没有数据
+			return NULL;
+		}else{
+			Bnode<Type_Bstree> *root;
+			Sort<Type_Bstree> sorted;
+			Type_Bstree *pdata_temp = new Type_Bstree[right - left + 1];
+
+			memcpy(pdata_temp, pdata + left, (right - left + 1)*sizeof(Type_Bstree));
+			//先排序
+			sorted.quick_sort(pdata_temp, 0, right - left);
+			//二分贪心法构造
+			root = bulid_balanced_bstree_recursive(pdata_temp, 0, right - left, addr);
+
+			this->set_root(root);
+			
+			delete [] pdata_temp;
+
+			return root;  //返回树的根节点
+		}
+
+
+		
 	}
 
 	
@@ -944,7 +1032,7 @@ namespace mmath
 		return; 	
 	}
 
-#elif 1
+#elif 0
 	template <class Type_Sort>
 	void Sort<Type_Sort>::bitree_sort(Type_Sort *pdata, sint32 left, sint32 right){
 		if (left >= right) {
@@ -954,10 +1042,8 @@ namespace mmath
 		Type_Sort *pdata_temp = pdata + left;  // 支持子数组
 		BStree<Type_Sort> bstree;
 		Bnode<Type_Sort> *node = new Bnode<Type_Sort>[right - left + 1];
-		//vector<Type_Sort> sorted;
 		sint32 i, right_side = right - left;
 		uint balance = 0, reverse = is_reverse();
-		//sint32 ld, rd;
 		
 		for(i=0; i<=right_side; i++){
 			node[i].set_data(pdata_temp[i]);
@@ -966,23 +1052,27 @@ namespace mmath
 			cout<<"------------------data num: "<<i+1<<", balance: "<<(balance?"TRUE":"FALSE")<<endl;			
 		}
 		bstree.traverse(bstree.get_root(), 1);
-		/*
-		ld = bstree.depth(bstree.get_root()->get_lchild());
-		rd = bstree.depth(bstree.get_root()->get_rchild());
-		cout<<"depth of l_child: "<<ld<<", depth of r_child: "<<rd<<endl;
-		balance = bstree.is_balanced(bstree.get_root());
-		cout<<"balance: "<<(balance?"TRUE":"FALSE")<<endl;
-		
-		get_data_from_bstree(bstree.get_root(), sorted);
-		for(i=0; i<=right_side; i++){
-			if(reverse){
-				pdata_temp[i] = sorted.at(right_side-i);
-			}else{
-				pdata_temp[i] = sorted.at(i);
-			}
-		}
-		*/
+
 		delete [] node;
+		
+		return; 	
+	}
+
+#elif 1
+	template <class Type_Sort>
+	void Sort<Type_Sort>::bitree_sort(Type_Sort *pdata, sint32 left, sint32 right){
+		BStree<Type_Sort> bstree;
+		Bnode<Type_Sort> *root;
+		uint balance = 0;
+		Bnode<Type_Sort> *addr = new Bnode<Type_Sort>[right - left + 1];
+
+		root = bstree.bulid_balanced_bstree(pdata, left, right, addr);
+		balance = bstree.is_balanced(bstree.get_root());
+		cout<<"------------------balance: "<<(balance?"TRUE":"FALSE")<<"------------------"<<endl;	
+		bstree.traverse(bstree.get_root(), 1);
+		cout<<endl;
+		
+		delete [] addr;
 		
 		return; 	
 	}

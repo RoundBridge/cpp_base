@@ -84,7 +84,7 @@ namespace mmath
 			Bnode<Type_Btree> *right_rotate(Bnode<Type_Btree> *root);
 			Bnode<Type_Btree> *leftright_rotate(Bnode<Type_Btree> *root);
 			Bnode<Type_Btree> *rightleft_rotate(Bnode<Type_Btree> *root);
-			state add_height_from_current_node_to_root(Bnode<Type_Btree> *node, sint32 level);
+			state refresh_height_from_current_node_to_root(Bnode<Type_Btree> *node, sint32 level);
 			
 		protected:
 			Bnode<Type_Btree> *root;
@@ -101,6 +101,8 @@ namespace mmath
 		state delete_node(Bnode<Type_Bstree> *node);
 		Bnode<Type_Bstree> *insert_node(Bnode<Type_Bstree> *new_node);
 		Bnode<Type_Bstree> *insert_recursive(uint32 flag, Bnode<Type_Bstree> *root, Bnode<Type_Bstree> *parent_of_root, Bnode<Type_Bstree> *new_node);
+		Bnode<Type_Bstree> *bulid_balanced_bstree(Type_Bstree *pdata, sint32 left, sint32 right, Bnode<Type_Bstree>* addr);
+		Bnode<Type_Bstree> *bulid_balanced_bstree_recursive(Type_Bstree *pdata, sint32 left, sint32 right, Bnode<Type_Bstree>* addr);
 	};
 
 	
