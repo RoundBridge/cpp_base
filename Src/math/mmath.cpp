@@ -319,6 +319,8 @@ namespace mmath
 	Bnode<Type_Btree>* Btree<Type_Btree>::leftright_rotate(Bnode<Type_Btree> *root){
 		if(NULL == root){return root;}
 		root->set_lchild(left_rotate(root->get_lchild()));
+		root->set_ltree_h(depth(root->get_lchild()));
+		root->refresh_node_h();
 		return right_rotate(root);
 	}
 
@@ -336,6 +338,8 @@ namespace mmath
 	Bnode<Type_Btree>* Btree<Type_Btree>::rightleft_rotate(Bnode<Type_Btree> *root){
 		if(NULL == root){return root;}
 		root->set_rchild(right_rotate(root->get_rchild()));
+		root->set_rtree_h(depth(root->get_rchild()));
+		root->refresh_node_h();
 		return left_rotate(root);
 	}
 
@@ -363,14 +367,14 @@ namespace mmath
 				// node父节点的节点高度刷新
 				node->get_parent()->refresh_node_h();
 				// node父节点为新的更新起始节点
-				return refresh_height_from_current_node_to_root(node->get_parent(), parent_level);
+				return refresh_height_from_current_node_to_root(node->get_parent(), node->get_parent()->get_node_h()-1);
 			}else if(node->is_rchild()){
 				// node父节点的右子树高度只能是parent_level
 				node->get_parent()->set_rtree_h(parent_level); 
 				// node父节点的节点高度刷新
 				node->get_parent()->refresh_node_h();
 				// node父节点为新的更新起始节点
-				return refresh_height_from_current_node_to_root(node->get_parent(), parent_level);
+				return refresh_height_from_current_node_to_root(node->get_parent(), node->get_parent()->get_node_h()-1);
 			}else{
 				cout<<"[class Btree] refresh_height_from_current_node_to_root ERROR: invalid node!"<<endl;
 				return FAILED;
@@ -475,9 +479,11 @@ namespace mmath
 		历的第一个节点?
 		b.把它的值和要删除的节点的值进行交换
 		c.然后删除这个节点即相当于把我们想删除的节点删除了
+
+	注:保证转换后的树的ltree_h/rtree_h/node_h信息的正确性
 	*/
 	template <class Type_Bstree>
-	state BStree<Type_Bstree>::adjust_bstree(Bnode<Type_Bstree> *node){
+	state BStree<Type_Bstree>::delete_node_and_adjust_to_bstree(Bnode<Type_Bstree> *node){
 		Bnode<Type_Bstree> *root = this->get_root();
 		Bnode<Type_Bstree> *temp = NULL, *replace = NULL;
 		state ret = OK;
@@ -493,58 +499,83 @@ namespace mmath
 			}else{
 				if(node == node->get_parent()->get_lchild()){//删除节点是左叶子结点
 					node->get_parent()->set_lchild(NULL);
+					node->get_parent()->set_ltree_h(0);
 				}else if(node == node->get_parent()->get_rchild()){//删除节点是右叶子结点
 					node->get_parent()->set_rchild(NULL);
+					node->get_parent()->set_rtree_h(0);					
 				}else{
 					cout<<"[class Bstree] 1.NODE TO BE DELETE ERROR!"<<endl;
 					return PARAM_ERR;
 				}
+				node->get_parent()->refresh_node_h();
+				ret = this->refresh_height_from_current_node_to_root(node->get_parent(), node->get_parent()->get_node_h()-1);
 			}
 		}else if(NULL != node->get_lchild() && NULL == node->get_rchild()){ //只有左孩子
 			if(root == node){  // 同时又是根节点
 				node->get_lchild()->set_parent(NULL);
 				this->set_root(node->get_lchild());
+				//此种情况下不需要更新ltree_h/rtree_h/node_h信息
 			}else{
 				if(node == node->get_parent()->get_lchild()){//删除节点是左叶子结点
 					node->get_lchild()->set_parent(node->get_parent());
 					node->get_parent()->set_lchild(node->get_lchild());
+					node->get_parent()->set_ltree_h(node->get_lchild()->get_node_h());
 				}else if(node == node->get_parent()->get_rchild()){//删除节点是右叶子结点
 					node->get_lchild()->set_parent(node->get_parent());
 					node->get_parent()->set_rchild(node->get_lchild());
+					node->get_parent()->set_rtree_h(node->get_lchild()->get_node_h());
 				}else{
 					cout<<"[class Bstree] 2.NODE TO BE DELETE ERROR!"<<endl;
 					return PARAM_ERR;
 				}
+				node->get_parent()->refresh_node_h();
+				ret = this->refresh_height_from_current_node_to_root(node->get_parent(), node->get_parent()->get_node_h()-1);
 			}
 		}else if(NULL == node->get_lchild() && NULL != node->get_rchild()){ //只有右孩子
 			if(root == node){  // 同时又是根节点
 				node->get_rchild()->set_parent(NULL);
 				this->set_root(node->get_rchild());
+				//此种情况下不需要更新ltree_h/rtree_h/node_h信息
 			}else{
 				if(node == node->get_parent()->get_lchild()){//删除节点是左叶子结点
 					node->get_rchild()->set_parent(node->get_parent());
 					node->get_parent()->set_lchild(node->get_rchild());
+					node->get_parent()->set_ltree_h(node->get_rchild()->get_node_h());
 				}else if(node == node->get_parent()->get_rchild()){//删除节点是右叶子结点
 					node->get_rchild()->set_parent(node->get_parent());
 					node->get_parent()->set_rchild(node->get_rchild());
+					node->get_parent()->set_rtree_h(node->get_rchild()->get_node_h());
 				}else{
 					cout<<"[class Bstree] 3.NODE TO BE DELETE ERROR!"<<endl;
 					return PARAM_ERR;
 				}
+				node->get_parent()->refresh_node_h();
+				ret = this->refresh_height_from_current_node_to_root(node->get_parent(), node->get_parent()->get_node_h()-1);
 			}
 		}else{  //删除节点既有左孩子，又有右孩子
 			temp = node->get_rchild();
 			while(temp){  //该循环找到删除节点右子树中最左边的结点，该节点的值将放到删除节点的位置
 				replace = temp;
 				temp = temp->get_lchild();
-			}				
+			}
+			//替换节点不可能有左孩子，否则左孩子是替换节点
 			if(replace == replace->get_parent()->get_lchild()){
 				//替换节点是其父节点的左孩子
 				replace->get_parent()->set_lchild(replace->get_rchild());
+				if(replace->get_rchild()){
+					replace->get_parent()->set_ltree_h(replace->get_rchild()->get_node_h());
+				}else{
+					replace->get_parent()->set_ltree_h(0);
+				}				
 			}else if(replace == replace->get_parent()->get_rchild()){
 				//替换节点是其父节点的右孩子
 				//这种情况是存在的:删除节点的右子树的每个节点都只有右子树
 				replace->get_parent()->set_rchild(replace->get_rchild());
+				if(replace->get_rchild()){
+					replace->get_parent()->set_rtree_h(replace->get_rchild()->get_node_h());
+				}else{
+					replace->get_parent()->set_rtree_h(0);
+				}
 			}else{
 				cout<<"[class Bstree] 4.REPLACE NODE ERROR!"<<endl;
 				return PARAM_ERR;
@@ -558,11 +589,105 @@ namespace mmath
 			node->set_data(replace->get_data());
 			//if(root == node){}
 			// 删除节点同时又是根节点，不需要处理，因为此时树不为空			
+			replace->get_parent()->refresh_node_h();
+			ret = this->refresh_height_from_current_node_to_root(replace->get_parent(), replace->get_parent()->get_node_h()-1);
 		}
 		return ret;
 	}
 
 
+	//将二叉排序树转换成平衡二叉排序树，同时保证转换后的
+	//ltree_h/rtree_h/node_h信息的正确性
+	template <class Type_Bstree>
+	state BStree<Type_Bstree>::adjust_to_balanced_bstree(Bnode<Type_Bstree> *root){		
+		state ret = OK;
+
+		while(!this->is_balanced(root)){
+			ret = adjust_to_balanced_bstree(root->get_lchild());
+			ret |= adjust_to_balanced_bstree(root->get_rchild());
+
+			sint32 rtree_h = 0, rltree_h = 0, rrtree_h = 0;  //右子树，右子树的左孩子，右子树的右孩子
+			sint32 ltree_h = 0, lltree_h = 0, lrtree_h = 0;  //左子树，左子树的左孩子，左子树的右孩子
+			Bnode<Type_Bstree> *l = NULL, *r = NULL, *temp = NULL;
+
+			// 有可能存在两棵子树都平衡的情况下父节点不平衡的情况
+			if(!this->is_balanced(root)){
+				ltree_h = root->get_ltree_h();
+				rtree_h = root->get_rtree_h();
+				
+				if(root->get_lchild()){  //如果有左子树
+					l = root->get_lchild();
+					lltree_h = l->get_ltree_h();
+					lrtree_h = l->get_rtree_h();
+				}
+				if(root->get_rchild()){  //如果有右子树
+					r = root->get_rchild();
+					rltree_h = r->get_ltree_h();
+					rrtree_h = r->get_rtree_h();
+				}
+				//第一个L表示root的左子树比右子树高。
+				if(ltree_h > rtree_h){
+					//第二个L表示root的左孩子的左子树比右子树高，
+					//或者root的左孩子的左右子树等高。
+					if(lltree_h >= lrtree_h){// LL型
+						temp = this->right_rotate(root);
+					}
+					//第二个R表示root的左孩子的右子树比左子树高
+					else{//LR型
+						temp = this->leftright_rotate(root);
+					}
+				}
+				//第一个R表示root的右子树比左子树高。
+				else{
+					//第二个R表示root的右孩子的右子树比左子树高，
+					//或者root的右孩子的左右子树等高。
+					if(rltree_h <= rrtree_h){// RR型
+						temp = this->left_rotate(root);
+					}
+					//第二个L表示root的右孩子的左子树比右子树高。
+					else{//RL型
+						temp = this->rightleft_rotate(root);
+					}
+				}
+				ret |= this->refresh_height_from_current_node_to_root(temp, temp->get_node_h()-1);
+			}
+		}
+		return ret;
+	}
+
+
+	/*
+		从一棵二叉排序树或者平衡二叉排序树中删除一个节点，
+		保证删完后的树是一棵平衡二叉排序树
+	*/
+	template <class Type_Bstree>
+	state BStree<Type_Bstree>::delete_node_pro(Bnode<Type_Bstree> *node){
+		state ret = OK;
+
+		//先得到一棵二叉排序树
+		if(OK != (ret = delete_node(node))){
+			cout<<"[class Bstree] delete_node_pro failed, ret="<<ret<<endl;
+			return ret;
+		}else{
+			/*----------------------
+			uint balance = this->is_balanced(this->get_root());
+			cout<<"------before adjust_to_balanced_bstree------balance: "<<(balance?"TRUE":"FALSE")<<"------------------"<<endl;	
+			this->traverse(this->get_root(), 1);
+			cout<<endl;
+			----------------------*/		
+			//再将二叉排序树转换成平衡二叉排序树
+			if(OK != (ret = adjust_to_balanced_bstree(this->get_root()))){
+				cout<<"[class Bstree] adjust_to_balanced_bstree failed, ret="<<ret<<endl;
+			}
+			return ret;			
+		}
+	}
+
+
+	/*
+		从一棵二叉排序树中删除一个节点，保证删完后的树
+		仍是一棵二叉排序树
+	*/
 	template <class Type_Bstree>
 	state BStree<Type_Bstree>::delete_node(Bnode<Type_Bstree> *node){
 		Bnode<Type_Bstree>* del_node = this->find_node(node);
@@ -572,7 +697,7 @@ namespace mmath
 			cout<<"[class Bstree] NO SUCH NODE TO DELETE!"<<endl;
 			return NULL_PTR;
 		}else{
-			ret = adjust_bstree(del_node);
+			ret = delete_node_and_adjust_to_bstree(del_node);
 			return ret;
 		}
 	}
@@ -979,7 +1104,7 @@ namespace mmath
 		Bnode<Type_Sort> *node = new Bnode<Type_Sort>[right - left + 1];
 		vector<Type_Sort> sorted;
 		sint32 i, j = 0, right_side = right - left;
-		uint reverse = is_reverse();
+		uint balance = FALSE, reverse = is_reverse();
 
 		for(i=0; i<=right_side; i++){
 			node[i].set_data(pdata_temp[i]);
@@ -993,6 +1118,11 @@ namespace mmath
 				cout<<sorted.at(i)<<", ";
 			}
 		}
+		cout<<endl;
+		balance = bstree.is_balanced(bstree.get_root());
+		cout<<"------------------balance: "<<(balance?"TRUE":"FALSE")<<"------------------"<<endl;			
+		bstree.traverse(bstree.get_root(), 1);
+		cout<<endl;
 		sorted.clear();
 		
 		cout<<"\nIf you want to delete a number, press y, else press n.";
@@ -1003,6 +1133,88 @@ namespace mmath
 			Bnode<Type_Sort> del_node(del_num);
 			ret = bstree.delete_node(&del_node);
 			if(OK == ret){
+				balance = bstree.is_balanced(bstree.get_root());
+				cout<<"------------------balance: "<<(balance?"TRUE":"FALSE")<<"------------------"<<endl;	
+				bstree.traverse(bstree.get_root(), 1);
+				cout<<endl;
+				
+				j++;
+				get_data_from_bstree(bstree.get_root(), sorted);
+				for(i=0; i<=right_side-j; i++){
+					if(reverse){
+						pdata_temp[i] = sorted.at(right_side-j-i);
+						cout<<sorted.at(right_side-j-i)<<", ";
+					}else{
+						pdata_temp[i] = sorted.at(i);
+						cout<<sorted.at(i)<<", ";
+					}
+				}
+				sorted.clear();
+				if(OK == test(pdata_temp, 0, right_side-j)){
+					cout<<"\nDelete node and sort successfully!"<<endl;
+				}else{
+					cout<<"\nDelete node and sort FAILED!"<<endl;
+				}
+			}else{
+				cout<<"delete_node err, ret = "<<ret;
+			}			
+			cout<<"\nContinue to delete?[y|n]: ";
+			cin>>flag;
+		}
+
+		delete [] node;
+		
+		return; 	
+	}
+
+#elif 1
+	template <class Type_Sort>
+	void Sort<Type_Sort>::bitree_sort(Type_Sort *pdata, sint32 left, sint32 right){
+		if (left >= right) {
+			return;
+		}
+		state ret = OK;
+		sint8 flag = 0;
+		Type_Sort del_num;
+		Type_Sort *pdata_temp = pdata + left;  // 支持子数组
+		BStree<Type_Sort> bstree;
+		Bnode<Type_Sort> *node = new Bnode<Type_Sort>[right - left + 1];
+		vector<Type_Sort> sorted;
+		sint32 i, j = 0, right_side = right - left;
+		uint balance = FALSE, reverse = is_reverse();
+
+		for(i=0; i<=right_side; i++){
+			node[i].set_data(pdata_temp[i]);
+			bstree.insert_node(&node[i]);
+		}
+		get_data_from_bstree(bstree.get_root(), sorted);
+		for(i=0; i<=right_side-j; i++){
+			if(reverse){
+				cout<<sorted.at(right_side-j-i)<<", ";
+			}else{
+				cout<<sorted.at(i)<<", ";
+			}
+		}
+		cout<<endl;
+		balance = bstree.is_balanced(bstree.get_root());
+		cout<<"------------------balance: "<<(balance?"TRUE":"FALSE")<<"------------------"<<endl;			
+		bstree.traverse(bstree.get_root(), 1);
+		cout<<endl;
+		sorted.clear();
+		
+		cout<<"\nIf you want to delete a number, press y, else press n.";
+		cin>>flag;
+		while(flag == 'y'){
+			cout<<"\nPlease input the number you want to delete: "<<endl;
+			cin>>del_num;	
+			Bnode<Type_Sort> del_node(del_num);
+			ret = bstree.delete_node_pro(&del_node);
+			if(OK == ret){
+				balance = bstree.is_balanced(bstree.get_root());
+				cout<<"------------------balance: "<<(balance?"TRUE":"FALSE")<<"------------------"<<endl;	
+				bstree.traverse(bstree.get_root(), 1);
+				cout<<endl;
+				
 				j++;
 				get_data_from_bstree(bstree.get_root(), sorted);
 				for(i=0; i<=right_side-j; i++){
@@ -1058,7 +1270,7 @@ namespace mmath
 		return; 	
 	}
 
-#elif 1
+#elif 0
 	template <class Type_Sort>
 	void Sort<Type_Sort>::bitree_sort(Type_Sort *pdata, sint32 left, sint32 right){
 		BStree<Type_Sort> bstree;

@@ -17,14 +17,14 @@ Version: 		0.0.1
 #define FALSE		0
 
 
-enum state_code{OK=0, FAILED, NULL_PTR, PARAM_ERR};
+enum state_code{OK=0, FAILED, NULL_PTR, PARAM_ERR=4};
 
 #ifdef PLATEFORM_X86_32
 
 #define INT_MINI     (-2147483648)
 #define INT_MAXI     (2147483647)
 
-typedef int					state;
+typedef unsigned int		state;
 
 typedef unsigned char		uint8;
 typedef unsigned short		uint16;
