@@ -15,6 +15,12 @@ Version: 		0.0.1
 
 namespace mgeometry
 {
+	template <class Type_Point>
+	ostream& operator <<(ostream& outputstream, const Point<Type_Point>& p){
+		outputstream<<"("<<p.x<<", "<<p.y<<")";
+		return outputstream;
+	}
+	
 	//返回引用，允许像下面这样的层叠赋值语句a = b = c;
 	//层叠赋值语句之所以有效，是因为内置赋值运算符在
 	//起作用。重载时也做到和内置类型保持一致

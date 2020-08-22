@@ -5,6 +5,7 @@
 #include "common.h"
 #include "types.h"
 #include "mmath.cpp"
+#include "mgeometry.cpp"
 
 using std::make_pair;
 using std::pair;
@@ -13,7 +14,8 @@ using std::cout;
 using std::endl;
 using std::string;
 using mmath::Sort;
-	
+using mgeometry::Point;
+
 int main()
 {
 	sf8 a1[20] = {0.1, 8.1, -4.7, 1, 6.9, 9.2, 0, 3.3, 1, -77, 10.01, -0.1, 2, 65, -4.7, 200, -7, 4, -6.9, -6.9};
@@ -23,7 +25,11 @@ int main()
 	multimap<string, pair<sf8*, sint32> >::iterator iter;
 	Sort<sf8> sf8Sort(TRUE);
 	uint32 test_result = FALSE;
-
+	Point<double> p1;
+	Point<double> p2(1,1);
+	cout<<p1<<endl;
+	cout<<p2<<endl;
+	
 	arrays.insert(make_pair("a1", make_pair(a1, 20)));
 	arrays.insert(make_pair("a2", make_pair(a2, 3)));
 	arrays.insert(make_pair("a3", make_pair(a3, 6)));
