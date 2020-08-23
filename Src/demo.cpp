@@ -15,6 +15,7 @@ using std::endl;
 using std::string;
 using mmath::Sort;
 using mgeometry::Point;
+using mgeometry::Line;
 
 int main()
 {
@@ -25,11 +26,18 @@ int main()
 	multimap<string, pair<sf8*, sint32> >::iterator iter;
 	Sort<sf8> sf8Sort(TRUE);
 	uint32 test_result = FALSE;
-	Point<double> p1;
-	Point<double> p2(1,1);
+	Point<sf8> p1;
+	Point<sf8> p2(-0.00000000001,1000000000000);
+	Line<sf8> l1(p1,p2);
+	Line<sf8> l2;
+	l2 = l1;
 	cout<<p1<<endl;
 	cout<<p2<<endl;
-	
+	cout<<l1<<endl;
+	if(l1 == l2){
+		cout<<"Two lines are same!\n";
+	}
+#if 0
 	arrays.insert(make_pair("a1", make_pair(a1, 20)));
 	arrays.insert(make_pair("a2", make_pair(a2, 3)));
 	arrays.insert(make_pair("a3", make_pair(a3, 6)));
@@ -54,5 +62,6 @@ int main()
 		}
 		#endif
 	}
+#endif
 	return 0;
 }
