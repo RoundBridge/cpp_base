@@ -27,7 +27,9 @@ int main()
 	Sort<sf8> sf8Sort(TRUE);
 	uint32 test_result = FALSE;
 	Point<sf8> p1;
-	Point<sf8> p2(-0.00000000001,1000000000000);
+	Point<sf8> p2(1,1);
+	Point<sf8> p3(0,1);
+	Point<sf8> p4(1,0);
 	Line<sf8> l1(p1,p2);
 	Line<sf8> l2;
 	l2 = l1;
@@ -37,6 +39,9 @@ int main()
 	if(l1 == l2){
 		cout<<"Two lines are same!\n";
 	}
+	cout<<"p1.distance_to_line(p2) "<<p1.distance_to_point(p2)<<endl;
+	cout<<"p3.distance_to_line(l1) "<<p3.distance_to_line(l1)<<",p3.distance_to_line_ex(l1) "<<p3.distance_to_line_ex(l1)<<endl;
+	cout<<"p4.distance_to_line(l1) "<<p4.distance_to_line(l1)<<",p4.distance_to_line_ex(l1) "<<p4.distance_to_line_ex(l1)<<endl;
 #if 0
 	arrays.insert(make_pair("a1", make_pair(a1, 20)));
 	arrays.insert(make_pair("a2", make_pair(a2, 3)));
