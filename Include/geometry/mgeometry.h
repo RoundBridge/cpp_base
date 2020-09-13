@@ -74,7 +74,7 @@ namespace mgeometry
 			解决方案是将成员函数定义为常成员函数（常成员
 			函数保证调用此函数的对象不会被改变?
 		*/
-		sf8 get_coefficient_A()const{return A;} //常成员函数保证调用此函数的对象不会被改变
+		sf8 get_coefficient_A()const{return A;} 	//常成员函数保证调用此函数的对象不会被改变
 		sf8 get_coefficient_B()const{return B;}
 		sf8 get_coefficient_C()const{return C;}
 		sf8 get_coefficient_k()const{return k;}
