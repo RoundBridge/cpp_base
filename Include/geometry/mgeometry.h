@@ -86,9 +86,9 @@ namespace mgeometry
 		sf8 A;
 		sf8 B;
 		sf8 C;
-		sf8 k;  //Ð±ÂÊ
-		sf8 b;  //×Ý½Ø¾à
-		sf8 a;  //ºá½Ø¾à
+		sf8 k;  		//Ð±ÂÊ
+		sf8 b;  		//×Ý½Ø¾à
+		sf8 a;  		//ºá½Ø¾à
 	};
 }
 
