@@ -12,7 +12,8 @@ Version: 		0.0.1
 #ifndef _PLATFORM_H_
 #define _PLATFORM_H_
 
-#define PLATEFORM_X86_32
+//#define PLATEFORM_X86_32
+#define PLATEFORM_X86_64
 
 #endif
 

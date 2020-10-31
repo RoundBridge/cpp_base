@@ -6,6 +6,7 @@
 #include "types.h"
 #include "mmath.cpp"
 #include "mgeometry.cpp"
+#include "mparser.h"
 
 using std::make_pair;
 using std::pair;
@@ -32,6 +33,16 @@ int main()
 	Point<sf8> p4(1,0);
 	Line<sf8> l1(p1,p2);
 	Line<sf8> l2;
+	mparser::H264ParserFactory H264Factory;
+	mparser::H264ParseOut H264Result;
+	mparser::Parser parser(&H264Factory);
+
+	parser.start_parse("./encoded_stream.data", &H264Result, sizeof(H264Result), 0x01000000);
+	//parser.start_parse("./1080P.h264", &H264Result, sizeof(H264Result), 0x01000000);
+	parser.print(&H264Result);
+	//delete& parser;  // parser是栈上的变量，不能delete，因为出栈有顺序，直接delete会破坏栈结构，编译通过，运行失败
+	cout << endl << endl;
+
 	l2 = l1;
 	cout<<p1<<endl;
 	cout<<p2<<endl;
@@ -42,6 +53,8 @@ int main()
 	cout<<"p1.distance_to_line(p2) "<<p1.distance_to_point(p2)<<endl;
 	cout<<"p3.distance_to_line(l1) "<<p3.distance_to_line(l1)<<",p3.distance_to_line_ex(l1) "<<p3.distance_to_line_ex(l1)<<endl;
 	cout<<"p4.distance_to_line(l1) "<<p4.distance_to_line(l1)<<",p4.distance_to_line_ex(l1) "<<p4.distance_to_line_ex(l1)<<endl;
+
+	
 #if 0
 	arrays.insert(make_pair("a1", make_pair(a1, 20)));
 	arrays.insert(make_pair("a2", make_pair(a2, 3)));
@@ -68,5 +81,7 @@ int main()
 		#endif
 	}
 #endif
+	cout << "Type: char\tshort\tint\tfloat\tdouble\tlong\tlong int\tlong long\tchar*\tint*\tvoid*" << endl;
+	cout << "Size: " << sizeof(char) << "\t\t" << sizeof(short) << "\t" << sizeof(int) << "\t" << sizeof(float) << "\t" << sizeof(double) << "\t" << sizeof(long) << "\t" << sizeof(long int) << "\t\t" << sizeof(long long) << "\t\t" << sizeof(char*) << "\t" << sizeof(int*) << "\t" << sizeof(void*) << endl;
 	return 0;
 }
