@@ -82,14 +82,19 @@ namespace mparser
                 skip = 3;
             }
             if (OK == find_start_code(dataIdx, len, flag, &pos1)) {
-                if (OK == find_start_code(dataIdx + pos1 + skip, len - pos1 - skip, flag, &pos2)) {  // 找到两个起始码，则两个起始码之间是完整的一段数据
+                if (OK == find_start_code(dataIdx + pos1 + skip, len - pos1 - skip, flag, &pos2)) {
+                    // 找到两个起始码，则两个起始码之间是完整的一段数据
+                    // 非H264文件如果也恰巧满足了同时找到两个起始码，那当前暂且将其当作H264文件，等待后续继续判断，
+                    // 如果整个文件检测下来都满足要求，那就是天命，即便不是H264，也将其当作H264
                     *out = dataIdx + pos1;
-                    *outLen = pos2 - pos1;
+                    *outLen = pos2 + skip;  // pos2是相对于dataIdx + pos1 + skip往后的长度
                     return OK;
                 }
-                else {  // 只找到一个起始码，则很可能从该起始码直到最后的数据是不完整的
+                else {
+                    // 1、只找到一个起始码，则很可能从该起始码直到最后的数据是不完整的，也可能是正常文件数据的结束；
+                    // 2、非H264文件在检测到一个起始码后，在接下来的500K长度中没有再检测到起始码
                     *out = dataIdx + pos1;
-                    *outLen = len - pos1;
+                    *outLen = pos2 + skip;
                     return DATA_NOTENOUGH;
                 }
             }
@@ -167,8 +172,26 @@ namespace mparser
                 parse_nalu_type(*(pos + skip), pOut);
                 l = l - ((uint32)(pos - dataIdx) + getLen);
                 dataIdx = pos + getLen;
+                /*
+                    DATA_NOTENOUGH只会在两种情况下返回，在这两种情况下循环都可以结束：
+                    1、正常H264文件读到文件最后一帧时；
+                    2、不是H264文件但是第一次寻找时，恰巧码流中有和起始码一样的字节存在，get_data返回OK，被误认为是H264文件，
+                    然后第二次寻找时搜寻了500K长度而没有检测到起始码，此时get_data也会返回DATA_NOTENOUGH；
+
+                */
+                if (ret == DATA_NOTENOUGH) {
+                    break;
+                }
+            }
+            else {
+                cout << "[H264Parser] Can't find Nalu unit any more!" << endl;
+                break;
             }
         } while (l > 0);
+        // 只有l变成0，说明是H264编码文件
+        if (l == 0) {
+            pOut->isH264 = TRUE;
+        }
         return OK;
     }
 
@@ -176,7 +199,7 @@ namespace mparser
     {
         H264ParseOut* pOut = (H264ParseOut*)out;
 
-        if (pOut == NULL) {
+        if (pOut == NULL || !pOut->isH264) {
             
         }
         else {
@@ -192,6 +215,8 @@ namespace mparser
 
     state_code H264Parser::find_start_code(const puint8 data, uint64 len, uint32 startCode, puint64 pos)
     {
+        static uint32 exception = 0;
+
         if (data == NULL || pos == NULL) {
             return NULL_PTR;
         }
@@ -217,13 +242,32 @@ namespace mparser
         }
         for (; dataIdx <= dataEnd - startCodeLen; dataIdx++)
         {
+            *pos = (uint64)(dataIdx - data);
             pNaluToken = (puint32)dataIdx;
             //搜寻nalu起始标志0x01000000，找到nalu起始位置
             if (startCode == (*pNaluToken & startCodeMask))
             {
-                *pos = (uint64)(dataIdx - data);
+                if (*pos >= 1024 * 150) {
+                    exception++;
+                }
+                else {
+                    exception = exception > 0 ? (exception - 1) : 0;
+                }
                 return OK;
             }
+            // 单次搜索长度大于500K还没找到起始码或者连续三次搜索到起始码的长度都大于150K即判断该文件不是annxeb H264编码格式
+            if (exception >= 3 || *pos >= 500*1024) {
+                exception = 0;
+                cout << "[H264Parser] searchedRange " << *pos << ", exception times " << exception <<", assert: the file is not annxeb H264 encoded!" << endl;
+                break;
+            }
+        }
+        // 正常的H264文件搜索结束，利用这个判断区别非H264文件
+        if (dataIdx == (dataEnd - startCodeLen + 1)) {
+            *pos = len;
+        }
+        else {
+            cout << "[H264Parser] Can't find start code " << startCode << ", stream len " << len << ", searched len " << *pos << endl;
         }
         return FAILED;
     }
@@ -243,7 +287,7 @@ namespace mparser
         }        
         uint64 fileLen = parser->get_file_length(file);
         uint8* buf = new uint8[fileLen];
-
+        cout << "[PARSER] file " << file <<" length " << fileLen << endl;
         parser->read_file(file, buf, fileLen);
         ret = parser->parse(buf, fileLen, out, outLen, flag);
         delete[] buf;

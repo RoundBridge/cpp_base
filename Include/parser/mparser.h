@@ -86,7 +86,7 @@ namespace mparser
         virtual void print_parse_result(pvoid out);
     private:
         /*
-            从data开始查找起始码，位置用pos返回，函数返回状态码
+            从data开始查找起始码，位置用pos(相对于data的偏移量)返回，函数返回状态码
         */
         state_code find_start_code(const puint8 data, uint64 len, uint32 startCode, puint64 pos);
         state_code parse_nalu_type(uint8 naluHeader, H264ParseOut* parseOut);

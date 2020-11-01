@@ -37,8 +37,11 @@ int main()
 	mparser::H264ParseOut H264Result;
 	mparser::Parser parser(&H264Factory);
 
-	parser.start_parse("./encoded_stream.data", &H264Result, sizeof(H264Result), 0x01000000);
-	//parser.start_parse("./1080P.h264", &H264Result, sizeof(H264Result), 0x01000000);
+	//parser.start_parse("./1024_h264_IPB帧.mp4", &H264Result, sizeof(H264Result), 0x01000000);
+	//parser.start_parse("./encoded_stream.data", &H264Result, sizeof(H264Result), 0x01000000);
+	//parser.start_parse("./1024_mpeg4.mp4", &H264Result, sizeof(H264Result), 0x01000000);
+	//parser.start_parse("./1080P.h265", &H264Result, sizeof(H264Result), 0x01000000);
+	parser.start_parse("./1080P.h264", &H264Result, sizeof(H264Result), 0x01000000);
 	parser.print(&H264Result);
 	//delete& parser;  // parser是栈上的变量，不能delete，因为出栈有顺序，直接delete会破坏栈结构，编译通过，运行失败
 	cout << endl << endl;
