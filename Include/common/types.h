@@ -19,10 +19,27 @@ Version: 		0.0.1
 
 enum state_code{OK=0, FAILED, NULL_PTR, PARAM_ERR=4, DATA_NOTENOUGH=8};
 
+/*
+	关于加不加L/UL后缀的问题，如：
+	
+	//超过int的范围
+	long  i = 1234567890123L;  
+	long  j = 1234567890123;
+	//未超过int的范围
+	long i = 12345L;
+	long j = 12345;
+	
+	这是属于预处理的内容。如果不加修饰，则编译器可默认为机器字长有符号，也就是int。
+	一般来说，除了要考虑加L修饰，还要考虑是不是用无符号数表示，比如UL，因为有可能有符号数的范围也无法表示了。
+	另外，很多平台的int和long是相同长度的，所以，更多的应用是增加无符号的修饰UL。
+*/
+
 #ifdef PLATEFORM_X86_32
 
 #define INT_MINI     (-2147483648)
 #define INT_MAXI     (2147483647)
+
+// sizeof(long) = 4;	// 32位系统，long的长度是4字节
 
 typedef unsigned int		state;
 
@@ -81,6 +98,8 @@ typedef volatile double*				psf8v;
 
 #define INT_MINI     (-2147483648)
 #define INT_MAXI     (2147483647)
+
+// sizeof(long) = 8;	// 64位系统，long的长度是8字节
 
 typedef unsigned int		state;
 
